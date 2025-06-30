@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BarChart3, Activity, Heart, TrendingUp } from 'lucide-react-native';
+import { ChartBar as BarChart3, Activity, Heart, TrendingUp } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 768;

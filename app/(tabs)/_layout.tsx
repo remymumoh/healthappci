@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Activity, Heart, BarChart3 } from 'lucide-react-native';
+import { Activity, Heart, ChartBar as BarChart3 } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
