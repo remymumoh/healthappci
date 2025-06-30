@@ -1,127 +1,166 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { TopBar } from "@/components/TopBar"
-import { FilterSidebar } from "@/components/FilterSidebar"
-import { MainContent } from "@/components/MainContent"
-import { useDataStore } from "@/hooks/useDataStore"
-
-const { width } = Dimensions.get("window")
-const isLargeScreen = width > 1024
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Activity, Users, Target, TrendingUp } from 'lucide-react-native';
 
 export default function HTSScreen() {
-  const { counties, facilities, dashboardCards, loading, filterState, selectCounty, selectFacility, setCategory } =
-    useDataStore()
-
-  const [showSidebar, setShowSidebar] = useState(isLargeScreen)
-
-  useEffect(() => {
-    setCategory("hts")
-  }, [setCategory])
-
-  useEffect(() => {
-    if (isLargeScreen) {
-      setShowSidebar(true)
+  const htsStats = [
+    {
+      title: 'Total Tests This Month',
+      value: '2,847',
+      change: '+12.5%',
+      icon: Activity,
+      color: '#3b82f6'
+    },
+    {
+      title: 'People Tested',
+      value: '2,234',
+      change: '+8.3%',
+      icon: Users,
+      color: '#10b981'
+    },
+    {
+      title: 'Positive Results',
+      value: '127',
+      change: '+2.1%',
+      icon: Target,
+      color: '#ef4444'
+    },
+    {
+      title: 'Testing Rate',
+      value: '89.2%',
+      change: '+5.7%',
+      icon: TrendingUp,
+      color: '#f59e0b'
     }
-  }, [isLargeScreen])
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar)
-  }
-
-  const closeSidebar = () => {
-    if (!isLargeScreen) {
-      setShowSidebar(false)
-    }
-  }
-
-  const getActiveFiltersCount = () => {
-    let count = 0
-    if (filterState.selectedCounty) count++
-    if (filterState.selectedFacility) count++
-    return count
-  }
-
-  const getTopBarTitle = () => {
-    if (filterState.selectedFacility) {
-      const facility = facilities.find((f) => f.id === filterState.selectedFacility)
-      return facility ? facility.name : "HTS Services"
-    }
-
-    if (filterState.selectedCounty) {
-      const county = counties.find((c) => c.id === filterState.selectedCounty)
-      return county ? `${county.name} County` : "HTS Services"
-    }
-
-    return "HTS Services"
-  }
-
-  const getTopBarSubtitle = () => {
-    return "HIV Testing Services Dashboard"
-  }
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar
-        title={getTopBarTitle()}
-        subtitle={getTopBarSubtitle()}
-        onToggleSidebar={toggleSidebar}
-        activeFiltersCount={getActiveFiltersCount()}
-      />
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>HIV Testing Services</Text>
+          <Text style={styles.subtitle}>Testing data and program performance</Text>
+        </View>
 
-      <View style={styles.content}>
-        <FilterSidebar
-          counties={counties}
-          facilities={facilities}
-          selectedCounty={filterState.selectedCounty}
-          selectedFacility={filterState.selectedFacility}
-          selectedCategory={filterState.category}
-          onSelectCounty={selectCounty}
-          onSelectFacility={selectFacility}
-          onSelectCategory={setCategory}
-          loading={loading}
-          isVisible={showSidebar}
-          onClose={closeSidebar}
-        />
+        <View style={styles.statsGrid}>
+          {htsStats.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <View key={index} style={styles.statCard}>
+                <View style={styles.statHeader}>
+                  <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                    <IconComponent size={24} color={stat.color} />
+                  </View>
+                  <Text style={styles.statTitle}>{stat.title}</Text>
+                </View>
+                <View style={styles.statContent}>
+                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
 
-        <MainContent
-          category={filterState.category}
-          selectedCounty={filterState.selectedCounty}
-          selectedFacility={filterState.selectedFacility}
-          counties={counties}
-          facilities={facilities}
-          dashboardCards={dashboardCards}
-          loading={loading}
-        />
-      </View>
-
-      {/* Overlay for mobile when sidebar is open */}
-      {showSidebar && !isLargeScreen && (
-        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={closeSidebar} />
-      )}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Testing Overview</Text>
+          <Text style={styles.sectionDescription}>
+            Comprehensive HIV testing services data across all facilities.
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9fafb",
+    backgroundColor: '#f9fafb',
   },
-  content: {
+  scrollView: {
     flex: 1,
-    flexDirection: "row",
-    position: "relative",
   },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1,
+  header: {
+    padding: 20,
+    backgroundColor: '#ffffff',
   },
-})
+  title: {
+    fontSize: 28,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+  },
+  statsGrid: {
+    padding: 16,
+  },
+  statCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  statHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  statTitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+    flex: 1,
+  },
+  statContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  statValue: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+  },
+  statChange: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+  },
+  section: {
+    padding: 20,
+    backgroundColor: '#ffffff',
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  sectionDescription: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+    lineHeight: 20,
+  },
+});

@@ -1,127 +1,166 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { View, StyleSheet, Dimensions, TouchableOpacity } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { TopBar } from "@/components/TopBar"
-import { FilterSidebar } from "@/components/FilterSidebar"
-import { MainContent } from "@/components/MainContent"
-import { useDataStore } from "@/hooks/useDataStore"
-
-const { width } = Dimensions.get("window")
-const isLargeScreen = width > 1024
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Heart, Users, Shield, Clock } from 'lucide-react-native';
 
 export default function CareAndTreatmentScreen() {
-  const { counties, facilities, dashboardCards, loading, filterState, selectCounty, selectFacility, setCategory } =
-    useDataStore()
-
-  const [showSidebar, setShowSidebar] = useState(isLargeScreen)
-
-  useEffect(() => {
-    setCategory("care-treatment")
-  }, [setCategory])
-
-  useEffect(() => {
-    if (isLargeScreen) {
-      setShowSidebar(true)
+  const careStats = [
+    {
+      title: 'Active Patients',
+      value: '8,945',
+      change: '+2.8%',
+      icon: Users,
+      color: '#3b82f6'
+    },
+    {
+      title: 'New Enrollments',
+      value: '234',
+      change: '+4.2%',
+      icon: Heart,
+      color: '#10b981'
+    },
+    {
+      title: 'Viral Suppression',
+      value: '92.4%',
+      change: '+0.8%',
+      icon: Shield,
+      color: '#ef4444'
+    },
+    {
+      title: 'Retention Rate',
+      value: '87.6%',
+      change: '+1.5%',
+      icon: Clock,
+      color: '#f59e0b'
     }
-  }, [isLargeScreen])
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar)
-  }
-
-  const closeSidebar = () => {
-    if (!isLargeScreen) {
-      setShowSidebar(false)
-    }
-  }
-
-  const getActiveFiltersCount = () => {
-    let count = 0
-    if (filterState.selectedCounty) count++
-    if (filterState.selectedFacility) count++
-    return count
-  }
-
-  const getTopBarTitle = () => {
-    if (filterState.selectedFacility) {
-      const facility = facilities.find((f) => f.id === filterState.selectedFacility)
-      return facility ? facility.name : "Care & Treatment"
-    }
-
-    if (filterState.selectedCounty) {
-      const county = counties.find((c) => c.id === filterState.selectedCounty)
-      return county ? `${county.name} County` : "Care & Treatment"
-    }
-
-    return "Care & Treatment"
-  }
-
-  const getTopBarSubtitle = () => {
-    return "Patient Care & Treatment Dashboard"
-  }
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar
-        title={getTopBarTitle()}
-        subtitle={getTopBarSubtitle()}
-        onToggleSidebar={toggleSidebar}
-        activeFiltersCount={getActiveFiltersCount()}
-      />
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Care & Treatment</Text>
+          <Text style={styles.subtitle}>Patient care and treatment outcomes</Text>
+        </View>
 
-      <View style={styles.content}>
-        <FilterSidebar
-          counties={counties}
-          facilities={facilities}
-          selectedCounty={filterState.selectedCounty}
-          selectedFacility={filterState.selectedFacility}
-          selectedCategory={filterState.category}
-          onSelectCounty={selectCounty}
-          onSelectFacility={selectFacility}
-          onSelectCategory={setCategory}
-          loading={loading}
-          isVisible={showSidebar}
-          onClose={closeSidebar}
-        />
+        <View style={styles.statsGrid}>
+          {careStats.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <View key={index} style={styles.statCard}>
+                <View style={styles.statHeader}>
+                  <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                    <IconComponent size={24} color={stat.color} />
+                  </View>
+                  <Text style={styles.statTitle}>{stat.title}</Text>
+                </View>
+                <View style={styles.statContent}>
+                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
 
-        <MainContent
-          category={filterState.category}
-          selectedCounty={filterState.selectedCounty}
-          selectedFacility={filterState.selectedFacility}
-          counties={counties}
-          facilities={facilities}
-          dashboardCards={dashboardCards}
-          loading={loading}
-        />
-      </View>
-
-      {/* Overlay for mobile when sidebar is open */}
-      {showSidebar && !isLargeScreen && (
-        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={closeSidebar} />
-      )}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Treatment Overview</Text>
+          <Text style={styles.sectionDescription}>
+            Comprehensive care and treatment data for all enrolled patients.
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9fafb",
+    backgroundColor: '#f9fafb',
   },
-  content: {
+  scrollView: {
     flex: 1,
-    flexDirection: "row",
-    position: "relative",
   },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1,
+  header: {
+    padding: 20,
+    backgroundColor: '#ffffff',
   },
-})
+  title: {
+    fontSize: 28,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+  },
+  statsGrid: {
+    padding: 16,
+  },
+  statCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  statHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  statTitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+    flex: 1,
+  },
+  statContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  statValue: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+  },
+  statChange: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+  },
+  section: {
+    padding: 20,
+    backgroundColor: '#ffffff',
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  sectionDescription: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+    lineHeight: 20,
+  },
+});
