@@ -1,48 +1,41 @@
 import { useEffect } from 'react';
-    import { Stack } from 'expo-router';
-    import { StatusBar } from 'expo-status-bar';
-    import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
-    import { SplashScreen } from 'expo-router';
-    import './globals.css';
-    import '../nativewind';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
+import * as SplashScreen from 'expo-splash-screen';
+import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 
-    // Prevent splash screen from auto-hiding
-    SplashScreen.preventAutoHideAsync();
+// Prevent splash screen from auto-hiding
+SplashScreen.preventAutoHideAsync();
 
-    // Create a custom hook for framework ready state
-    const useFrameworkReady = () => {
-      // Your framework ready logic here if needed
-      return true;
-    };
+export default function RootLayout() {
+  // Use the framework ready hook - REQUIRED and must NEVER be removed
+  useFrameworkReady();
 
-    export default function RootLayout() {
-      // Use the custom hook
-      useFrameworkReady();
+  const [fontsLoaded, fontError] = useFonts({
+    'Inter-Regular': Inter_400Regular,
+    'Inter-Medium': Inter_500Medium,
+    'Inter-SemiBold': Inter_600SemiBold,
+    'Inter-Bold': Inter_700Bold,
+  });
 
-      const [fontsLoaded, fontError] = useFonts({
-        'Inter-Regular': Inter_400Regular,
-        'Inter-Medium': Inter_500Medium,
-        'Inter-SemiBold': Inter_600SemiBold,
-        'Inter-Bold': Inter_700Bold,
-      });
-
-      useEffect(() => {
-        if (fontsLoaded || fontError) {
-          SplashScreen.hideAsync();
-        }
-      }, [fontsLoaded, fontError]);
-
-      if (!fontsLoaded && !fontError) {
-        return null;
-      }
-
-      return (
-        <>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </>
-      );
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
     }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <StatusBar style="auto" />
+    </>
+  );
+}
