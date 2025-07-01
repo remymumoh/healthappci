@@ -1,0 +1,368 @@
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Building2, Users, Activity, Heart, Shield, Clock, MapPin } from 'lucide-react-native';
+
+interface Facility {
+  id: string;
+  name: string;
+  type: 'hospital' | 'clinic' | 'health_center';
+  patients: number;
+  htsTests: number;
+  careEnrollments: number;
+  viralSuppression: number;
+  retentionRate: number;
+}
+
+interface County {
+  id: string;
+  name: string;
+  facilities: Facility[];
+}
+
+interface FacilityDetailsProps {
+  facility: Facility;
+  county: County;
+}
+
+export default function FacilityDetails({ facility, county }: FacilityDetailsProps) {
+  const getFacilityTypeLabel = (type: Facility['type']) => {
+    switch (type) {
+      case 'hospital':
+        return 'Hospital';
+      case 'clinic':
+        return 'Clinic';
+      case 'health_center':
+        return 'Health Center';
+      default:
+        return 'Facility';
+    }
+  };
+
+  const getFacilityIcon = (type: Facility['type']) => {
+    switch (type) {
+      case 'hospital':
+        return <Building2 size={32} color="#3b82f6" />;
+      case 'clinic':
+        return <Building2 size={32} color="#10b981" />;
+      case 'health_center':
+        return <Building2 size={32} color="#f59e0b" />;
+      default:
+        return <Building2 size={32} color="#6b7280" />;
+    }
+  };
+
+  const facilityStats = [
+    {
+      title: 'Total Patients',
+      value: facility.patients.toLocaleString(),
+      change: '+2.8%',
+      icon: Users,
+      color: '#3b82f6'
+    },
+    {
+      title: 'HTS Tests',
+      value: facility.htsTests.toLocaleString(),
+      change: '+4.2%',
+      icon: Activity,
+      color: '#10b981'
+    },
+    {
+      title: 'Care Enrollments',
+      value: facility.careEnrollments.toLocaleString(),
+      change: '+1.5%',
+      icon: Heart,
+      color: '#ef4444'
+    },
+    {
+      title: 'Viral Suppression',
+      value: `${facility.viralSuppression}%`,
+      change: '+0.8%',
+      icon: Shield,
+      color: '#8b5cf6'
+    },
+    {
+      title: 'Retention Rate',
+      value: `${facility.retentionRate}%`,
+      change: '+1.2%',
+      icon: Clock,
+      color: '#f59e0b'
+    }
+  ];
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <View style={styles.facilityHeader}>
+            {getFacilityIcon(facility.type)}
+            <View style={styles.facilityInfo}>
+              <Text style={styles.facilityName}>{facility.name}</Text>
+              <View style={styles.facilityMeta}>
+                <Text style={styles.facilityType}>{getFacilityTypeLabel(facility.type)}</Text>
+                <View style={styles.locationContainer}>
+                  <MapPin size={14} color="#6b7280" />
+                  <Text style={styles.countyName}>{county.name}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.statsSection}>
+          <Text style={styles.sectionTitle}>Key Metrics</Text>
+          <View style={styles.statsGrid}>
+            {facilityStats.map((stat, index) => {
+              const IconComponent = stat.icon;
+              return (
+                <View key={index} style={styles.statCard}>
+                  <View style={styles.statHeader}>
+                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                      <IconComponent size={20} color={stat.color} />
+                    </View>
+                    <Text style={styles.statTitle}>{stat.title}</Text>
+                  </View>
+                  <View style={styles.statContent}>
+                    <Text style={styles.statValue}>{stat.value}</Text>
+                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Performance Overview</Text>
+          <View style={styles.performanceCard}>
+            <View style={styles.performanceItem}>
+              <Text style={styles.performanceLabel}>Testing Coverage</Text>
+              <View style={styles.progressBar}>
+                <View style={[styles.progressFill, { width: '78%', backgroundColor: '#10b981' }]} />
+              </View>
+              <Text style={styles.performanceValue}>78%</Text>
+            </View>
+            
+            <View style={styles.performanceItem}>
+              <Text style={styles.performanceLabel}>Treatment Adherence</Text>
+              <View style={styles.progressBar}>
+                <View style={[styles.progressFill, { width: '85%', backgroundColor: '#3b82f6' }]} />
+              </View>
+              <Text style={styles.performanceValue}>85%</Text>
+            </View>
+            
+            <View style={styles.performanceItem}>
+              <Text style={styles.performanceLabel}>Follow-up Rate</Text>
+              <View style={styles.progressBar}>
+                <View style={[styles.progressFill, { width: '92%', backgroundColor: '#8b5cf6' }]} />
+              </View>
+              <Text style={styles.performanceValue}>92%</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <View style={styles.activityList}>
+            <View style={styles.activityItem}>
+              <View style={[styles.activityDot, { backgroundColor: '#10b981' }]} />
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>New patient enrollments increased</Text>
+                <Text style={styles.activityTime}>2 hours ago</Text>
+              </View>
+            </View>
+            <View style={styles.activityItem}>
+              <View style={[styles.activityDot, { backgroundColor: '#3b82f6' }]} />
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>HTS testing targets met for the month</Text>
+                <Text style={styles.activityTime}>1 day ago</Text>
+              </View>
+            </View>
+            <View style={styles.activityItem}>
+              <View style={[styles.activityDot, { backgroundColor: '#f59e0b' }]} />
+              <View style={styles.activityContent}>
+                <Text style={styles.activityTitle}>Quarterly report submitted</Text>
+                <Text style={styles.activityTime}>3 days ago</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  header: {
+    backgroundColor: '#ffffff',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  facilityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  facilityInfo: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  facilityName: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  facilityMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  facilityType: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  countyName: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+    marginLeft: 4,
+  },
+  statsSection: {
+    padding: 20,
+    backgroundColor: '#ffffff',
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -8,
+  },
+  statCard: {
+    width: '50%',
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 8,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  statHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  statTitle: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+    flex: 1,
+  },
+  statContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  statValue: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+  },
+  statChange: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+  },
+  section: {
+    padding: 20,
+    backgroundColor: '#ffffff',
+    marginTop: 8,
+  },
+  performanceCard: {
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  performanceItem: {
+    marginBottom: 16,
+  },
+  performanceLabel: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 4,
+    marginBottom: 4,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  performanceValue: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#111827',
+    textAlign: 'right',
+  },
+  activityList: {
+    marginTop: 8,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  activityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 6,
+    marginRight: 12,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#111827',
+    marginBottom: 2,
+  },
+  activityTime: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+  },
+});

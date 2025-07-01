@@ -1,12 +1,35 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChartBar as BarChart3, Activity, Heart, TrendingUp } from 'lucide-react-native';
+import { ChartBar as BarChart3, Activity, Heart, TrendingUp, Menu } from 'lucide-react-native';
+import NavigationDrawer from '../../components/NavigationDrawer';
+import FacilityDetails from '../../components/FacilityDetails';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 768;
 
+interface Facility {
+  id: string;
+  name: string;
+  type: 'hospital' | 'clinic' | 'health_center';
+  patients: number;
+  htsTests: number;
+  careEnrollments: number;
+  viralSuppression: number;
+  retentionRate: number;
+}
+
+interface County {
+  id: string;
+  name: string;
+  facilities: Facility[];
+}
+
 export default function Dashboard() {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+  const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
+
   const overviewStats = [
     {
       title: 'Total Health Facilities',
@@ -38,14 +61,56 @@ export default function Dashboard() {
     }
   ];
 
+  const handleFacilitySelect = (facility: Facility, county: County) => {
+    setSelectedFacility(facility);
+    setSelectedCounty(county);
+  };
+
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+  };
+
+  if (selectedFacility && selectedCounty) {
+    return (
+      <>
+        <View style={styles.facilityHeader}>
+          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+            <Menu size={24} color="#374151" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => {
+              setSelectedFacility(null);
+              setSelectedCounty(null);
+            }}
+            style={styles.backButton}
+          >
+            <Text style={styles.backButtonText}>← Back to Dashboard</Text>
+          </TouchableOpacity>
+        </View>
+        <FacilityDetails facility={selectedFacility} county={selectedCounty} />
+        <NavigationDrawer
+          isOpen={isDrawerOpen}
+          onToggle={toggleDrawer}
+          onFacilitySelect={handleFacilitySelect}
+          selectedFacility={selectedFacility}
+        />
+      </>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+          <Menu size={24} color="#374151" />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
           <Text style={styles.title}>Healthcare Dashboard</Text>
           <Text style={styles.subtitle}>National Health Data Overview</Text>
         </View>
+      </View>
 
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.statsGrid}>
           {overviewStats.map((stat, index) => {
             const IconComponent = stat.icon;
@@ -118,6 +183,13 @@ export default function Dashboard() {
           </View>
         </View>
       </ScrollView>
+
+      <NavigationDrawer
+        isOpen={isDrawerOpen}
+        onToggle={toggleDrawer}
+        onFacilitySelect={handleFacilitySelect}
+        selectedFacility={selectedFacility}
+      />
     </SafeAreaView>
   );
 }
@@ -127,12 +199,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
-  scrollView: {
-    flex: 1,
-  },
-  header: {
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 20,
     backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  menuButton: {
+    padding: 8,
+    marginRight: 16,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  facilityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  backButton: {
+    marginLeft: 16,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: '#3b82f6',
+  },
+  scrollView: {
+    flex: 1,
   },
   title: {
     fontSize: 28,
