@@ -1,9 +1,32 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Heart, Users, Shield, Clock } from 'lucide-react-native';
+import { Heart, Users, Shield, Clock, Menu } from 'lucide-react-native';
+import NavigationDrawer from '../../components/NavigationDrawer';
+import FacilityDetails from '../../components/FacilityDetails';
+
+interface Facility {
+  id: string;
+  name: string;
+  type: 'hospital' | 'clinic' | 'health_center';
+  patients: number;
+  htsTests: number;
+  careEnrollments: number;
+  viralSuppression: number;
+  retentionRate: number;
+}
+
+interface County {
+  id: string;
+  name: string;
+  facilities: Facility[];
+}
 
 export default function CareAndTreatmentScreen() {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
+  const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
+
   const careStats = [
     {
       title: 'Active Patients',
@@ -35,14 +58,56 @@ export default function CareAndTreatmentScreen() {
     }
   ];
 
+  const handleFacilitySelect = (facility: Facility, county: County) => {
+    setSelectedFacility(facility);
+    setSelectedCounty(county);
+  };
+
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+  };
+
+  if (selectedFacility && selectedCounty) {
+    return (
+      <>
+        <View style={styles.facilityHeader}>
+          <TouchableOpacity 
+            onPress={() => {
+              setSelectedFacility(null);
+              setSelectedCounty(null);
+            }}
+            style={styles.backButton}
+          >
+            <Text style={styles.backButtonText}>← Back to Care & Treatment</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+            <Menu size={24} color="#374151" />
+          </TouchableOpacity>
+        </View>
+        <FacilityDetails facility={selectedFacility} county={selectedCounty} />
+        <NavigationDrawer
+          isOpen={isDrawerOpen}
+          onToggle={toggleDrawer}
+          onFacilitySelect={handleFacilitySelect}
+          selectedFacility={selectedFacility}
+        />
+      </>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+      <View style={styles.headerContainer}>
+        <View style={styles.headerContent}>
           <Text style={styles.title}>Care & Treatment</Text>
           <Text style={styles.subtitle}>Patient care and treatment outcomes</Text>
         </View>
+        <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+          <Menu size={24} color="#374151" />
+        </TouchableOpacity>
+      </View>
 
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.statsGrid}>
           {careStats.map((stat, index) => {
             const IconComponent = stat.icon;
@@ -70,6 +135,13 @@ export default function CareAndTreatmentScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      <NavigationDrawer
+        isOpen={isDrawerOpen}
+        onToggle={toggleDrawer}
+        onFacilitySelect={handleFacilitySelect}
+        selectedFacility={selectedFacility}
+      />
     </SafeAreaView>
   );
 }
@@ -79,12 +151,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
-  scrollView: {
-    flex: 1,
-  },
-  header: {
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 20,
     backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  headerContent: {
+    flex: 1,
+  },
+  menuButton: {
+    padding: 8,
+  },
+  facilityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  backButton: {
+    flex: 1,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: '#3b82f6',
+  },
+  scrollView: {
+    flex: 1,
   },
   title: {
     fontSize: 28,
