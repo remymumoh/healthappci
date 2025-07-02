@@ -236,6 +236,7 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
       onRequestClose={onToggle}
     >
       <View style={styles.modalContainer}>
+        <TouchableOpacity style={styles.overlay} onPress={onToggle} />
         <View style={styles.drawer}>
           <SafeAreaView style={styles.drawerContent}>
             {/* Material Design Header */}
@@ -331,7 +332,6 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
             </ScrollView>
           </SafeAreaView>
         </View>
-        <TouchableOpacity style={styles.overlay} onPress={onToggle} />
       </View>
     </Modal>
   );
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     backgroundColor: '#ffffff',
     shadowColor: '#000',
-    shadowOffset: { width: 2, height: 0 },
+    shadowOffset: { width: -2, height: 0 },
     shadowOpacity: 0.16,
     shadowRadius: 10,
     elevation: 16,
