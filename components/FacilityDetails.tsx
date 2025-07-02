@@ -161,15 +161,15 @@ export default function FacilityDetails({ facility, county }: FacilityDetailsPro
               const IconComponent = stat.icon;
               return (
                 <View key={index} style={styles.statCard}>
-                  <View style={styles.statHeader}>
+                  <View style={styles.statContent}>
                     <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
                       <IconComponent size={20} color={stat.color} />
                     </View>
-                  </View>
-                  <View style={styles.statContent}>
-                    <Text style={styles.statTitle}>{stat.title}</Text>
-                    <Text style={styles.statValue}>{stat.value}</Text>
-                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                    <View style={styles.statInfo}>
+                      <Text style={styles.statTitle}>{stat.title}</Text>
+                      <Text style={styles.statValue}>{stat.value}</Text>
+                      <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                    </View>
                   </View>
                 </View>
               );
@@ -432,9 +432,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  statHeader: {
+  statContent: {
+    flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 12,
   },
   iconContainer: {
     width: 40,
@@ -442,9 +442,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
-  statContent: {
-    alignItems: 'flex-start',
+  statInfo: {
+    flex: 1,
   },
   statTitle: {
     fontSize: 14,
