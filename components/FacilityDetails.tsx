@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Building2, Users, Activity, Heart, Shield, Clock, MapPin, Calendar, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react-native';
+import { Building2, Users, Activity, Heart, Shield, Clock, MapPin, Calendar, TrendingUp, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react-native';
 
 interface Facility {
   id: string;
