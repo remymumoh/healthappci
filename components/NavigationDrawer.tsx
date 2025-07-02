@@ -192,13 +192,13 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
   const getFacilityIcon = (type: Facility['type']) => {
     switch (type) {
       case 'hospital':
-        return <Building2 size={16} color="#3b82f6" />;
+        return <Building2 size={20} color="#1976d2" />;
       case 'clinic':
-        return <Building2 size={16} color="#10b981" />;
+        return <Building2 size={20} color="#388e3c" />;
       case 'health_center':
-        return <Building2 size={16} color="#f59e0b" />;
+        return <Building2 size={20} color="#f57c00" />;
       default:
-        return <Building2 size={16} color="#6b7280" />;
+        return <Building2 size={20} color="#616161" />;
     }
   };
 
@@ -215,6 +215,19 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
     }
   };
 
+  const getFacilityTypeColor = (type: Facility['type']) => {
+    switch (type) {
+      case 'hospital':
+        return '#e3f2fd';
+      case 'clinic':
+        return '#e8f5e8';
+      case 'health_center':
+        return '#fff3e0';
+      default:
+        return '#f5f5f5';
+    }
+  };
+
   return (
     <Modal
       visible={isOpen}
@@ -223,16 +236,21 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
       onRequestClose={onToggle}
     >
       <View style={styles.modalContainer}>
-        <TouchableOpacity style={styles.overlay} onPress={onToggle} />
         <View style={styles.drawer}>
           <SafeAreaView style={styles.drawerContent}>
+            {/* Material Design Header */}
             <View style={styles.header}>
               <View style={styles.headerContent}>
-                <MapPin size={24} color="#3b82f6" />
-                <Text style={styles.headerTitle}>Healthcare Facilities</Text>
+                <View style={styles.headerIcon}>
+                  <MapPin size={24} color="#ffffff" />
+                </View>
+                <View style={styles.headerText}>
+                  <Text style={styles.headerTitle}>Healthcare Facilities</Text>
+                  <Text style={styles.headerSubtitle}>Browse by location</Text>
+                </View>
               </View>
               <TouchableOpacity onPress={onToggle} style={styles.closeButton}>
-                <X size={24} color="#374151" />
+                <X size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
 
@@ -242,49 +260,65 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
                   <TouchableOpacity
                     style={styles.countyHeader}
                     onPress={() => toggleCounty(county.id)}
+                    activeOpacity={0.7}
                   >
                     <View style={styles.countyHeaderContent}>
-                      <MapPin size={18} color="#6b7280" />
-                      <Text style={styles.countyName}>{county.name}</Text>
-                      <Text style={styles.facilityCount}>({county.facilities.length})</Text>
+                      <View style={styles.countyIcon}>
+                        <MapPin size={20} color="#1976d2" />
+                      </View>
+                      <View style={styles.countyInfo}>
+                        <Text style={styles.countyName}>{county.name}</Text>
+                        <Text style={styles.facilityCount}>{county.facilities.length} facilities</Text>
+                      </View>
                     </View>
-                    {expandedCounties.has(county.id) ? (
-                      <ChevronDown size={20} color="#6b7280" />
-                    ) : (
-                      <ChevronRight size={20} color="#6b7280" />
-                    )}
+                    <View style={[styles.expandIcon, expandedCounties.has(county.id) && styles.expandIconRotated]}>
+                      {expandedCounties.has(county.id) ? (
+                        <ChevronDown size={24} color="#757575" />
+                      ) : (
+                        <ChevronRight size={24} color="#757575" />
+                      )}
+                    </View>
                   </TouchableOpacity>
 
                   {expandedCounties.has(county.id) && (
                     <View style={styles.facilitiesList}>
-                      {county.facilities.map((facility) => (
+                      {county.facilities.map((facility, index) => (
                         <TouchableOpacity
                           key={facility.id}
                           style={[
                             styles.facilityItem,
-                            selectedFacility?.id === facility.id && styles.selectedFacility
+                            selectedFacility?.id === facility.id && styles.selectedFacility,
+                            index === county.facilities.length - 1 && styles.lastFacilityItem
                           ]}
                           onPress={() => {
                             onFacilitySelect(facility, county);
                             onToggle();
                           }}
+                          activeOpacity={0.8}
                         >
                           <View style={styles.facilityHeader}>
-                            {getFacilityIcon(facility.type)}
+                            <View style={[styles.facilityIconContainer, { backgroundColor: getFacilityTypeColor(facility.type) }]}>
+                              {getFacilityIcon(facility.type)}
+                            </View>
                             <View style={styles.facilityInfo}>
-                              <Text style={styles.facilityName}>{facility.name}</Text>
-                              <Text style={styles.facilityType}>
-                                {getFacilityTypeLabel(facility.type)}
+                              <Text style={styles.facilityName} numberOfLines={2}>
+                                {facility.name}
                               </Text>
+                              <View style={styles.facilityMeta}>
+                                <Text style={[styles.facilityType, { color: facility.type === 'hospital' ? '#1976d2' : facility.type === 'clinic' ? '#388e3c' : '#f57c00' }]}>
+                                  {getFacilityTypeLabel(facility.type)}
+                                </Text>
+                              </View>
                             </View>
                           </View>
+                          
                           <View style={styles.facilityStats}>
-                            <View style={styles.statItem}>
-                              <Users size={12} color="#6b7280" />
+                            <View style={styles.statChip}>
+                              <Users size={14} color="#616161" />
                               <Text style={styles.statText}>{facility.patients.toLocaleString()}</Text>
                             </View>
-                            <View style={styles.statItem}>
-                              <Activity size={12} color="#6b7280" />
+                            <View style={styles.statChip}>
+                              <Activity size={14} color="#616161" />
                               <Text style={styles.statText}>{facility.htsTests.toLocaleString()}</Text>
                             </View>
                           </View>
@@ -297,6 +331,7 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
             </ScrollView>
           </SafeAreaView>
         </View>
+        <TouchableOpacity style={styles.overlay} onPress={onToggle} />
       </View>
     </Modal>
   );
@@ -306,7 +341,6 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-end', // This positions the drawer on the right
   },
   overlay: {
     flex: 1,
@@ -317,12 +351,10 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     backgroundColor: '#ffffff',
     shadowColor: '#000',
-    shadowOffset: { width: -4, height: 0 }, // Shadow pointing left for right-side drawer
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 15,
-    borderTopLeftRadius: 16,
-    borderBottomLeftRadius: 16,
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 16,
   },
   drawerContent: {
     flex: 1,
@@ -331,133 +363,182 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    backgroundColor: '#f8fafc',
+    padding: 24,
+    backgroundColor: '#1976d2',
+    paddingTop: 16,
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+  },
+  headerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  headerText: {
+    flex: 1,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#111827',
-    marginLeft: 12,
+    color: '#ffffff',
+    marginBottom: 2,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   closeButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     flex: 1,
     padding: 16,
   },
   countyContainer: {
-    marginBottom: 12,
+    marginBottom: 8,
   },
   countyHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#f8fafc',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    marginBottom: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   countyHeaderContent: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
+  countyIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#e3f2fd',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  countyInfo: {
+    flex: 1,
+  },
   countyName: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#1e293b',
-    marginLeft: 12,
+    color: '#212121',
+    marginBottom: 2,
   },
   facilityCount: {
     fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#64748b',
-    marginLeft: 8,
-    backgroundColor: '#e2e8f0',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#757575',
+  },
+  expandIcon: {
+    padding: 4,
+  },
+  expandIconRotated: {
+    transform: [{ rotate: '0deg' }],
   },
   facilitiesList: {
-    marginTop: 8,
-    marginLeft: 16,
-    paddingLeft: 16,
+    marginLeft: 8,
+    paddingLeft: 24,
     borderLeftWidth: 2,
-    borderLeftColor: '#e2e8f0',
+    borderLeftColor: '#e0e0e0',
   },
   facilityItem: {
     padding: 16,
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
+    backgroundColor: '#fafafa',
+    borderRadius: 8,
     marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    borderLeftWidth: 4,
+    borderLeftColor: '#e0e0e0',
+  },
+  lastFacilityItem: {
+    marginBottom: 16,
   },
   selectedFacility: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#3b82f6',
-    borderWidth: 2,
+    backgroundColor: '#e3f2fd',
+    borderLeftColor: '#1976d2',
+    shadowColor: '#1976d2',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   facilityHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
   },
+  facilityIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
   facilityInfo: {
-    marginLeft: 12,
     flex: 1,
   },
   facilityName: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: 'Inter-SemiBold',
-    color: '#1e293b',
-    marginBottom: 2,
+    color: '#212121',
+    marginBottom: 4,
+    lineHeight: 20,
+  },
+  facilityMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   facilityType: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: 'Inter-Medium',
-    color: '#64748b',
   },
   facilityStats: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: 8,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#eeeeee',
   },
-  statItem: {
+  statChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   statText: {
     fontSize: 12,
     fontFamily: 'Inter-SemiBold',
-    color: '#475569',
-    marginLeft: 4,
+    color: '#424242',
+    marginLeft: 6,
   },
 });
