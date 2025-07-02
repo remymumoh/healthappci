@@ -165,9 +165,9 @@ export default function FacilityDetails({ facility, county }: FacilityDetailsPro
                     <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
                       <IconComponent size={20} color={stat.color} />
                     </View>
-                    <Text style={styles.statTitle}>{stat.title}</Text>
                   </View>
                   <View style={styles.statContent}>
+                    <Text style={styles.statTitle}>{stat.title}</Text>
                     <Text style={styles.statValue}>{stat.value}</Text>
                     <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
                   </View>
@@ -416,14 +416,13 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginHorizontal: -8,
+    justifyContent: 'space-between',
   },
   statCard: {
-    width: '50%',
+    width: '48%',
     backgroundColor: '#f9fafb',
     borderRadius: 12,
     padding: 16,
-    marginHorizontal: 8,
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#e5e7eb',
@@ -434,36 +433,33 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 12,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
-  },
-  statTitle: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: '#6b7280',
-    flex: 1,
   },
   statContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  statTitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+    marginBottom: 8,
   },
   statValue: {
-    fontSize: 18,
+    fontSize: 24,
     fontFamily: 'Inter-Bold',
     color: '#111827',
+    marginBottom: 4,
   },
   statChange: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Inter-Medium',
   },
   section: {
