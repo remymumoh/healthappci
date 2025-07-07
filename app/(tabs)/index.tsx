@@ -74,6 +74,9 @@ export default function Dashboard() {
     return (
       <>
         <View style={styles.facilityHeader}>
+          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+            <Menu size={24} color="#374151" />
+          </TouchableOpacity>
           <TouchableOpacity 
             onPress={() => {
               setSelectedFacility(null);
@@ -82,9 +85,6 @@ export default function Dashboard() {
             style={styles.backButton}
           >
             <Text style={styles.backButtonText}>← Back to Dashboard</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-            <Menu size={24} color="#374151" />
           </TouchableOpacity>
         </View>
         <FacilityDetails facility={selectedFacility} county={selectedCounty} />
@@ -101,13 +101,13 @@ export default function Dashboard() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+          <Menu size={24} color="#374151" />
+        </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>Healthcare Dashboard</Text>
           <Text style={styles.subtitle}>National Health Data Overview</Text>
         </View>
-        <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-          <Menu size={24} color="#374151" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -202,7 +202,6 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 20,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
@@ -210,6 +209,7 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: 8,
+    marginRight: 16,
   },
   headerContent: {
     flex: 1,
@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
   facilityHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 20,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
@@ -225,6 +224,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
+    marginLeft: 16,
   },
   backButtonText: {
     fontSize: 16,

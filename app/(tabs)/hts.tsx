@@ -71,6 +71,9 @@ export default function HTSScreen() {
     return (
       <>
         <View style={styles.facilityHeader}>
+          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+            <Menu size={24} color="#374151" />
+          </TouchableOpacity>
           <TouchableOpacity 
             onPress={() => {
               setSelectedFacility(null);
@@ -79,9 +82,6 @@ export default function HTSScreen() {
             style={styles.backButton}
           >
             <Text style={styles.backButtonText}>← Back to HTS</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-            <Menu size={24} color="#374151" />
           </TouchableOpacity>
         </View>
         <FacilityDetails facility={selectedFacility} county={selectedCounty} />
@@ -98,13 +98,13 @@ export default function HTSScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+          <Menu size={24} color="#374151" />
+        </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>HIV Testing Services</Text>
           <Text style={styles.subtitle}>Testing data and program performance</Text>
         </View>
-        <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-          <Menu size={24} color="#374151" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -154,7 +154,6 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 20,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
@@ -165,11 +164,11 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: 8,
+    marginRight: 16,
   },
   facilityHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 20,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
@@ -177,6 +176,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
+    marginLeft: 16,
   },
   backButtonText: {
     fontSize: 16,
