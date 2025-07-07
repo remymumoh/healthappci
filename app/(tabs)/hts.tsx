@@ -69,7 +69,12 @@ export default function HTSScreen() {
 
   if (selectedFacility && selectedCounty) {
     return (
-      <>
+      <NavigationDrawer
+        isOpen={isDrawerOpen}
+        onToggle={toggleDrawer}
+        onFacilitySelect={handleFacilitySelect}
+        selectedFacility={selectedFacility}
+      >
         <View style={styles.facilityHeader}>
           <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
             <Menu size={24} color="#374151" />
@@ -85,64 +90,58 @@ export default function HTSScreen() {
           </TouchableOpacity>
         </View>
         <FacilityDetails facility={selectedFacility} county={selectedCounty} />
-        <NavigationDrawer
-          isOpen={isDrawerOpen}
-          onToggle={toggleDrawer}
-          onFacilitySelect={handleFacilitySelect}
-          selectedFacility={selectedFacility}
-        />
-      </>
+      </NavigationDrawer>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-          <Menu size={24} color="#374151" />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.title}>HIV Testing Services</Text>
-          <Text style={styles.subtitle}>Testing data and program performance</Text>
+    <NavigationDrawer
+      isOpen={isDrawerOpen}
+      onToggle={toggleDrawer}
+      onFacilitySelect={handleFacilitySelect}
+      selectedFacility={selectedFacility}
+    >
+      <SafeAreaView style={styles.container}>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+            <Menu size={24} color="#374151" />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>HIV Testing Services</Text>
+            <Text style={styles.subtitle}>Testing data and program performance</Text>
+          </View>
         </View>
-      </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.statsGrid}>
-          {htsStats.map((stat, index) => {
-            const IconComponent = stat.icon;
-            return (
-              <View key={index} style={styles.statCard}>
-                <View style={styles.statHeader}>
-                  <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
-                    <IconComponent size={24} color={stat.color} />
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.statsGrid}>
+            {htsStats.map((stat, index) => {
+              const IconComponent = stat.icon;
+              return (
+                <View key={index} style={styles.statCard}>
+                  <View style={styles.statHeader}>
+                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                      <IconComponent size={24} color={stat.color} />
+                    </View>
+                    <Text style={styles.statTitle}>{stat.title}</Text>
                   </View>
-                  <Text style={styles.statTitle}>{stat.title}</Text>
+                  <View style={styles.statContent}>
+                    <Text style={styles.statValue}>{stat.value}</Text>
+                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                  </View>
                 </View>
-                <View style={styles.statContent}>
-                  <Text style={styles.statValue}>{stat.value}</Text>
-                  <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
-                </View>
-              </View>
-            );
-          })}
-        </View>
+              );
+            })}
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Testing Overview</Text>
-          <Text style={styles.sectionDescription}>
-            Comprehensive HIV testing services data across all facilities.
-          </Text>
-        </View>
-      </ScrollView>
-
-      <NavigationDrawer
-        isOpen={isDrawerOpen}
-        onToggle={toggleDrawer}
-        onFacilitySelect={handleFacilitySelect}
-        selectedFacility={selectedFacility}
-      />
-    </SafeAreaView>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Testing Overview</Text>
+            <Text style={styles.sectionDescription}>
+              Comprehensive HIV testing services data across all facilities.
+            </Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </NavigationDrawer>
   );
 }
 

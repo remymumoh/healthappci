@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronDown, ChevronRight, MapPin, Building2, X, Menu, Activity, Heart, Users } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
+const DRAWER_WIDTH = width * 0.85 > 400 ? 400 : width * 0.85;
 
 interface Facility {
   id: string;
@@ -27,6 +28,7 @@ interface NavigationDrawerProps {
   onToggle: () => void;
   onFacilitySelect: (facility: Facility, county: County) => void;
   selectedFacility?: Facility;
+  children: React.ReactNode;
 }
 
 const mockCounties: County[] = [
@@ -176,8 +178,40 @@ const mockCounties: County[] = [
   }
 ];
 
-export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, selectedFacility }: NavigationDrawerProps) {
+export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, selectedFacility, children }: NavigationDrawerProps) {
   const [expandedCounties, setExpandedCounties] = useState<Set<string>>(new Set());
+  const [drawerAnimation] = useState(new Animated.Value(0));
+  const [overlayAnimation] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    if (isOpen) {
+      Animated.parallel([
+        Animated.timing(drawerAnimation, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(overlayAnimation, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(drawerAnimation, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: false,
+        }),
+        Animated.timing(overlayAnimation, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isOpen]);
 
   const toggleCounty = (countyId: string) => {
     const newExpanded = new Set(expandedCounties);
@@ -228,133 +262,194 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
     }
   };
 
+  const drawerTranslateX = drawerAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-DRAWER_WIDTH, 0],
+  });
+
+  const contentTranslateX = drawerAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, DRAWER_WIDTH],
+  });
+
+  const overlayOpacity = overlayAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.5],
+  });
+
   return (
-    <Modal
-      visible={isOpen}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onToggle}
-    >
-      <View style={styles.modalContainer}>
-        <TouchableOpacity style={styles.overlay} onPress={onToggle} />
-        <View style={styles.drawer}>
-          <SafeAreaView style={styles.drawerContent}>
-            {/* Material Design Header */}
-            <View style={styles.header}>
-              <View style={styles.headerContent}>
-                <View style={styles.headerIcon}>
-                  <MapPin size={24} color="#ffffff" />
-                </View>
-                <View style={styles.headerText}>
-                  <Text style={styles.headerTitle}>Healthcare Facilities</Text>
-                  <Text style={styles.headerSubtitle}>Browse by location</Text>
-                </View>
+    <View style={styles.container}>
+      {/* Main Content */}
+      <Animated.View 
+        style={[
+          styles.contentContainer,
+          {
+            transform: [{ translateX: contentTranslateX }],
+          }
+        ]}
+      >
+        {children}
+      </Animated.View>
+
+      {/* Overlay */}
+      {isOpen && (
+        <Animated.View 
+          style={[
+            styles.overlay,
+            {
+              opacity: overlayOpacity,
+              transform: [{ translateX: contentTranslateX }],
+            }
+          ]}
+        >
+          <TouchableOpacity 
+            style={styles.overlayTouchable} 
+            onPress={onToggle}
+            activeOpacity={1}
+          />
+        </Animated.View>
+      )}
+
+      {/* Drawer */}
+      <Animated.View 
+        style={[
+          styles.drawer,
+          {
+            transform: [{ translateX: drawerTranslateX }],
+          }
+        ]}
+      >
+        <SafeAreaView style={styles.drawerContent}>
+          {/* Material Design Header */}
+          <View style={styles.header}>
+            <View style={styles.headerContent}>
+              <View style={styles.headerIcon}>
+                <MapPin size={24} color="#ffffff" />
               </View>
-              <TouchableOpacity onPress={onToggle} style={styles.closeButton}>
-                <X size={24} color="#ffffff" />
-              </TouchableOpacity>
+              <View style={styles.headerText}>
+                <Text style={styles.headerTitle}>Healthcare Facilities</Text>
+                <Text style={styles.headerSubtitle}>Browse by location</Text>
+              </View>
             </View>
+            <TouchableOpacity onPress={onToggle} style={styles.closeButton}>
+              <X size={24} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
 
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-              {mockCounties.map((county) => (
-                <View key={county.id} style={styles.countyContainer}>
-                  <TouchableOpacity
-                    style={styles.countyHeader}
-                    onPress={() => toggleCounty(county.id)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.countyHeaderContent}>
-                      <View style={styles.countyIcon}>
-                        <MapPin size={20} color="#1976d2" />
-                      </View>
-                      <View style={styles.countyInfo}>
-                        <Text style={styles.countyName}>{county.name}</Text>
-                        <Text style={styles.facilityCount}>{county.facilities.length} facilities</Text>
-                      </View>
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {mockCounties.map((county) => (
+              <View key={county.id} style={styles.countyContainer}>
+                <TouchableOpacity
+                  style={styles.countyHeader}
+                  onPress={() => toggleCounty(county.id)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.countyHeaderContent}>
+                    <View style={styles.countyIcon}>
+                      <MapPin size={20} color="#1976d2" />
                     </View>
-                    <View style={[styles.expandIcon, expandedCounties.has(county.id) && styles.expandIconRotated]}>
-                      {expandedCounties.has(county.id) ? (
-                        <ChevronDown size={24} color="#757575" />
-                      ) : (
-                        <ChevronRight size={24} color="#757575" />
-                      )}
+                    <View style={styles.countyInfo}>
+                      <Text style={styles.countyName}>{county.name}</Text>
+                      <Text style={styles.facilityCount}>{county.facilities.length} facilities</Text>
                     </View>
-                  </TouchableOpacity>
+                  </View>
+                  <View style={[styles.expandIcon, expandedCounties.has(county.id) && styles.expandIconRotated]}>
+                    {expandedCounties.has(county.id) ? (
+                      <ChevronDown size={24} color="#757575" />
+                    ) : (
+                      <ChevronRight size={24} color="#757575" />
+                    )}
+                  </View>
+                </TouchableOpacity>
 
-                  {expandedCounties.has(county.id) && (
-                    <View style={styles.facilitiesList}>
-                      {county.facilities.map((facility, index) => (
-                        <TouchableOpacity
-                          key={facility.id}
-                          style={[
-                            styles.facilityItem,
-                            selectedFacility?.id === facility.id && styles.selectedFacility,
-                            index === county.facilities.length - 1 && styles.lastFacilityItem
-                          ]}
-                          onPress={() => {
-                            onFacilitySelect(facility, county);
-                            onToggle();
-                          }}
-                          activeOpacity={0.8}
-                        >
-                          <View style={styles.facilityHeader}>
-                            <View style={[styles.facilityIconContainer, { backgroundColor: getFacilityTypeColor(facility.type) }]}>
-                              {getFacilityIcon(facility.type)}
-                            </View>
-                            <View style={styles.facilityInfo}>
-                              <Text style={styles.facilityName} numberOfLines={2}>
-                                {facility.name}
+                {expandedCounties.has(county.id) && (
+                  <View style={styles.facilitiesList}>
+                    {county.facilities.map((facility, index) => (
+                      <TouchableOpacity
+                        key={facility.id}
+                        style={[
+                          styles.facilityItem,
+                          selectedFacility?.id === facility.id && styles.selectedFacility,
+                          index === county.facilities.length - 1 && styles.lastFacilityItem
+                        ]}
+                        onPress={() => {
+                          onFacilitySelect(facility, county);
+                          onToggle();
+                        }}
+                        activeOpacity={0.8}
+                      >
+                        <View style={styles.facilityHeader}>
+                          <View style={[styles.facilityIconContainer, { backgroundColor: getFacilityTypeColor(facility.type) }]}>
+                            {getFacilityIcon(facility.type)}
+                          </View>
+                          <View style={styles.facilityInfo}>
+                            <Text style={styles.facilityName} numberOfLines={2}>
+                              {facility.name}
+                            </Text>
+                            <View style={styles.facilityMeta}>
+                              <Text style={[styles.facilityType, { color: facility.type === 'hospital' ? '#1976d2' : facility.type === 'clinic' ? '#388e3c' : '#f57c00' }]}>
+                                {getFacilityTypeLabel(facility.type)}
                               </Text>
-                              <View style={styles.facilityMeta}>
-                                <Text style={[styles.facilityType, { color: facility.type === 'hospital' ? '#1976d2' : facility.type === 'clinic' ? '#388e3c' : '#f57c00' }]}>
-                                  {getFacilityTypeLabel(facility.type)}
-                                </Text>
-                              </View>
                             </View>
                           </View>
-                          
-                          <View style={styles.facilityStats}>
-                            <View style={styles.statChip}>
-                              <Users size={14} color="#616161" />
-                              <Text style={styles.statText}>{facility.patients.toLocaleString()}</Text>
-                            </View>
-                            <View style={styles.statChip}>
-                              <Activity size={14} color="#616161" />
-                              <Text style={styles.statText}>{facility.htsTests.toLocaleString()}</Text>
-                            </View>
+                        </View>
+                        
+                        <View style={styles.facilityStats}>
+                          <View style={styles.statChip}>
+                            <Users size={14} color="#616161" />
+                            <Text style={styles.statText}>{facility.patients.toLocaleString()}</Text>
                           </View>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              ))}
-            </ScrollView>
-          </SafeAreaView>
-        </View>
-      </View>
-    </Modal>
+                          <View style={styles.statChip}>
+                            <Activity size={14} color="#616161" />
+                            <Text style={styles.statText}>{facility.htsTests.toLocaleString()}</Text>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            ))}
+          </ScrollView>
+        </SafeAreaView>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  container: {
     flex: 1,
-    flexDirection: 'row',
+  },
+  contentContainer: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
   },
   overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#000000',
+    zIndex: 1,
+  },
+  overlayTouchable: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   drawer: {
-    width: width * 0.85,
-    maxWidth: 400,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: DRAWER_WIDTH,
     backgroundColor: '#ffffff',
     shadowColor: '#000',
-    shadowOffset: { width: -2, height: 0 },
+    shadowOffset: { width: 2, height: 0 },
     shadowOpacity: 0.16,
     shadowRadius: 10,
     elevation: 16,
+    zIndex: 2,
   },
   drawerContent: {
     flex: 1,
