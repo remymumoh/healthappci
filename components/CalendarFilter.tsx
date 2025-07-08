@@ -1,0 +1,412 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { Calendar, ChevronDown, X, Filter } from 'lucide-react-native';
+
+export interface DateRange {
+  startDate: Date;
+  endDate: Date;
+  label: string;
+}
+
+interface CalendarFilterProps {
+  selectedRange: DateRange;
+  onRangeChange: (range: DateRange) => void;
+}
+
+const quarterPresets: DateRange[] = [
+  {
+    startDate: new Date(2024, 0, 1), // January 1, 2024
+    endDate: new Date(2024, 2, 31), // March 31, 2024
+    label: 'Q1 2024'
+  },
+  {
+    startDate: new Date(2024, 3, 1), // April 1, 2024
+    endDate: new Date(2024, 5, 30), // June 30, 2024
+    label: 'Q2 2024'
+  },
+  {
+    startDate: new Date(2024, 6, 1), // July 1, 2024
+    endDate: new Date(2024, 8, 30), // September 30, 2024
+    label: 'Q3 2024'
+  },
+  {
+    startDate: new Date(2024, 9, 1), // October 1, 2024
+    endDate: new Date(2024, 11, 31), // December 31, 2024
+    label: 'Q4 2024'
+  },
+  {
+    startDate: new Date(2023, 0, 1), // January 1, 2023
+    endDate: new Date(2023, 11, 31), // December 31, 2023
+    label: 'Full Year 2023'
+  },
+  {
+    startDate: new Date(2024, 0, 1), // January 1, 2024
+    endDate: new Date(2024, 11, 31), // December 31, 2024
+    label: 'Full Year 2024'
+  }
+];
+
+const monthPresets: DateRange[] = [
+  {
+    startDate: new Date(2024, 0, 1), // January 2024
+    endDate: new Date(2024, 0, 31),
+    label: 'January 2024'
+  },
+  {
+    startDate: new Date(2024, 1, 1), // February 2024
+    endDate: new Date(2024, 1, 29),
+    label: 'February 2024'
+  },
+  {
+    startDate: new Date(2024, 2, 1), // March 2024
+    endDate: new Date(2024, 2, 31),
+    label: 'March 2024'
+  },
+  {
+    startDate: new Date(2024, 3, 1), // April 2024
+    endDate: new Date(2024, 3, 30),
+    label: 'April 2024'
+  },
+  {
+    startDate: new Date(2024, 4, 1), // May 2024
+    endDate: new Date(2024, 4, 31),
+    label: 'May 2024'
+  },
+  {
+    startDate: new Date(2024, 5, 1), // June 2024
+    endDate: new Date(2024, 5, 30),
+    label: 'June 2024'
+  }
+];
+
+export default function CalendarFilter({ selectedRange, onRangeChange }: CalendarFilterProps) {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState<'quarters' | 'months' | 'custom'>('quarters');
+
+  const formatDateRange = (range: DateRange) => {
+    return range.label;
+  };
+
+  const handlePresetSelect = (preset: DateRange) => {
+    onRangeChange(preset);
+    setIsModalVisible(false);
+  };
+
+  const renderPresetButton = (preset: DateRange, isSelected: boolean) => (
+    <TouchableOpacity
+      key={preset.label}
+      style={[
+        styles.presetButton,
+        isSelected && styles.selectedPresetButton
+      ]}
+      onPress={() => handlePresetSelect(preset)}
+      activeOpacity={0.7}
+    >
+      <View style={styles.presetContent}>
+        <Text style={[
+          styles.presetLabel,
+          isSelected && styles.selectedPresetLabel
+        ]}>
+          {preset.label}
+        </Text>
+        <Text style={[
+          styles.presetDate,
+          isSelected && styles.selectedPresetDate
+        ]}>
+          {preset.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {preset.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </Text>
+      </View>
+      {isSelected && (
+        <View style={styles.selectedIndicator}>
+          <View style={styles.selectedDot} />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+
+  const isPresetSelected = (preset: DateRange) => {
+    return preset.startDate.getTime() === selectedRange.startDate.getTime() &&
+           preset.endDate.getTime() === selectedRange.endDate.getTime();
+  };
+
+  return (
+    <>
+      <TouchableOpacity
+        style={styles.filterButton}
+        onPress={() => setIsModalVisible(true)}
+        activeOpacity={0.8}
+      >
+        <View style={styles.filterButtonContent}>
+          <Calendar size={20} color="#3b82f6" />
+          <View style={styles.filterTextContainer}>
+            <Text style={styles.filterLabel}>Period</Text>
+            <Text style={styles.filterValue}>{formatDateRange(selectedRange)}</Text>
+          </View>
+          <ChevronDown size={20} color="#6b7280" />
+        </View>
+      </TouchableOpacity>
+
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <View style={styles.modalHeaderContent}>
+              <Filter size={24} color="#3b82f6" />
+              <Text style={styles.modalTitle}>Select Date Range</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setIsModalVisible(false)}
+              style={styles.closeButton}
+            >
+              <X size={24} color="#6b7280" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'quarters' && styles.activeTab]}
+              onPress={() => setActiveTab('quarters')}
+            >
+              <Text style={[styles.tabText, activeTab === 'quarters' && styles.activeTabText]}>
+                Quarters
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'months' && styles.activeTab]}
+              onPress={() => setActiveTab('months')}
+            >
+              <Text style={[styles.tabText, activeTab === 'months' && styles.activeTabText]}>
+                Months
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'custom' && styles.activeTab]}
+              onPress={() => setActiveTab('custom')}
+            >
+              <Text style={[styles.tabText, activeTab === 'custom' && styles.activeTabText]}>
+                Custom
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            {activeTab === 'quarters' && (
+              <View style={styles.presetsContainer}>
+                <Text style={styles.sectionTitle}>Select Quarter</Text>
+                {quarterPresets.map(preset => renderPresetButton(preset, isPresetSelected(preset)))}
+              </View>
+            )}
+
+            {activeTab === 'months' && (
+              <View style={styles.presetsContainer}>
+                <Text style={styles.sectionTitle}>Select Month</Text>
+                {monthPresets.map(preset => renderPresetButton(preset, isPresetSelected(preset)))}
+              </View>
+            )}
+
+            {activeTab === 'custom' && (
+              <View style={styles.customContainer}>
+                <Text style={styles.sectionTitle}>Custom Date Range</Text>
+                <View style={styles.customPlaceholder}>
+                  <Calendar size={48} color="#d1d5db" />
+                  <Text style={styles.customPlaceholderText}>
+                    Custom date picker coming soon
+                  </Text>
+                  <Text style={styles.customPlaceholderSubtext}>
+                    Use the preset options above for now
+                  </Text>
+                </View>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      </Modal>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  filterButton: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  filterButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  filterTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  filterLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+    marginBottom: 2,
+  },
+  filterValue: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#111827',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    backgroundColor: '#ffffff',
+  },
+  modalHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginLeft: 12,
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#f9fafb',
+    margin: 20,
+    borderRadius: 12,
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  activeTab: {
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  tabText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+  },
+  activeTabText: {
+    color: '#3b82f6',
+  },
+  modalContent: {
+    flex: 1,
+  },
+  presetsContainer: {
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  presetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedPresetButton: {
+    backgroundColor: '#eff6ff',
+    borderColor: '#3b82f6',
+  },
+  presetContent: {
+    flex: 1,
+  },
+  presetLabel: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  selectedPresetLabel: {
+    color: '#3b82f6',
+  },
+  presetDate: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+  },
+  selectedPresetDate: {
+    color: '#1d4ed8',
+  },
+  selectedIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectedDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ffffff',
+  },
+  customContainer: {
+    padding: 20,
+  },
+  customPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    borderStyle: 'dashed',
+  },
+  customPlaceholderText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#6b7280',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  customPlaceholderSubtext: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#9ca3af',
+    textAlign: 'center',
+  },
+});

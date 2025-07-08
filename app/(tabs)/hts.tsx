@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Activity, Users, Target, TrendingUp, Menu } from 'lucide-react-native';
 import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
+import CalendarFilter, { DateRange } from '../../components/CalendarFilter';
 
 interface Facility {
   id: string;
@@ -26,6 +27,11 @@ export default function HTSScreen() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange>({
+    startDate: new Date(2024, 9, 1), // Q4 2024
+    endDate: new Date(2024, 11, 31),
+    label: 'Q4 2024'
+  });
 
   const htsStats = [
     {
@@ -113,6 +119,14 @@ export default function HTSScreen() {
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          {/* Calendar Filter */}
+          <View style={styles.filterSection}>
+            <CalendarFilter
+              selectedRange={selectedDateRange}
+              onRangeChange={setSelectedDateRange}
+            />
+          </View>
+
           <View style={styles.statsGrid}>
             {htsStats.map((stat, index) => {
               const IconComponent = stat.icon;
@@ -184,6 +198,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  filterSection: {
+    padding: 16,
+    paddingBottom: 8,
   },
   title: {
     fontSize: 28,
