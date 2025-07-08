@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Heart, Users, Shield, Clock, Menu, UserPlus, Activity, TrendingUp, AlertCircle, CheckCircle, FileText, Calendar, Pill, Stethoscope, BarChart3 } from 'lucide-react-native';
+import { Heart, Users, Shield, Clock, Menu, UserPlus, Activity, TrendingUp, CircleAlert as AlertCircle, CircleCheck as CheckCircle, FileText, Calendar, Pill, Stethoscope, ChartBar as BarChart3 } from 'lucide-react-native';
 import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 
