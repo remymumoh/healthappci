@@ -31,6 +31,145 @@ export interface County {
 
 const API_BASE_URL = 'http://197.248.180.210:9091/api';
 
+// Fallback data based on real API structure
+const fallbackFacilities: ApiFacility[] = [
+  {
+    "mflcode": "20203",
+    "facility": "University of Nairobi-MARPS Project- Mwingi",
+    "type": "KP Site",
+    "county": "Kitui",
+    "subcounty": "Mwingi Central Sub County",
+    "ward": "Central Ward",
+    "program": "PACT IMARA"
+  },
+  {
+    "mflcode": "20209",
+    "facility": "Onyuongo Dispensary",
+    "type": "Health Facility",
+    "county": "Kisumu",
+    "subcounty": "Nyakach",
+    "ward": "North Nyakach",
+    "program": "ENTRENCH"
+  },
+  {
+    "mflcode": "20261",
+    "facility": "Kibera Level 3",
+    "type": "Health Facility",
+    "county": "Nairobi",
+    "subcounty": "Kibra",
+    "ward": "Sarang'ombe",
+    "program": "CONNECT"
+  },
+  {
+    "mflcode": "20425",
+    "facility": "Ap Kanyonyoo Dispensary",
+    "type": "Health Facility",
+    "county": "Kitui",
+    "subcounty": "Kitui Rural Sub County",
+    "ward": "Kwavonza/Yatta Ward",
+    "program": "PACT IMARA"
+  },
+  {
+    "mflcode": "20448",
+    "facility": "University Of Nairobi Kitui Drop In Centre",
+    "type": "KP Site",
+    "county": "Kitui",
+    "subcounty": "Kitui Central Sub County",
+    "ward": "Township Ward",
+    "program": "PACT IMARA"
+  },
+  {
+    "mflcode": "20523",
+    "facility": "Tumaini DICE Kisumu",
+    "type": "KP Site",
+    "county": "Kisumu",
+    "subcounty": "Kisumu Central",
+    "ward": "Market Milimani",
+    "program": "ENTRENCH"
+  },
+  {
+    "mflcode": "20568",
+    "facility": "Obware Dispensary",
+    "type": "Health Facility",
+    "county": "Migori",
+    "subcounty": "Nyatike",
+    "ward": "Kanyasa",
+    "program": "ENTRENCH"
+  },
+  {
+    "mflcode": "20934",
+    "facility": "Tumaini DICE Sondu",
+    "type": "KP Site",
+    "county": "Kisumu",
+    "subcounty": "Nyakach",
+    "ward": "South East Nyakach",
+    "program": "ENTRENCH"
+  },
+  {
+    "mflcode": "21144",
+    "facility": "MARPS Project Machakos Dice",
+    "type": "KP Site",
+    "county": "Machakos",
+    "subcounty": "Machakos Sub County",
+    "ward": "Machakos Central Ward",
+    "program": "PACT IMARA"
+  },
+  {
+    "mflcode": "21220",
+    "facility": "Anza Mapema Clinic",
+    "type": "KP Site",
+    "county": "Kisumu",
+    "subcounty": "Kisumu Central",
+    "ward": "Railways",
+    "program": "ENTRENCH"
+  },
+  {
+    "mflcode": "22349",
+    "facility": "Swop Outreach Project Clinic",
+    "type": "KP Site",
+    "county": "Nairobi",
+    "subcounty": "Embakasi East",
+    "ward": "Upper Savannah",
+    "program": "CONNECT"
+  },
+  {
+    "mflcode": "22564",
+    "facility": "Tumaini DICE Awasi",
+    "type": "KP Site",
+    "county": "Kisumu",
+    "subcounty": "Muhoroni",
+    "ward": "Masogo/Nyang'oma",
+    "program": "ENTRENCH"
+  },
+  {
+    "mflcode": "23200",
+    "facility": "BHESP--Roysambu",
+    "type": "KP Site",
+    "county": "Nairobi",
+    "subcounty": "Roysambu",
+    "ward": "Roysambu",
+    "program": "CONNECT"
+  },
+  {
+    "mflcode": "23414",
+    "facility": "Kware Dispensary",
+    "type": "KP Site",
+    "county": "Nairobi",
+    "subcounty": "Embakasi South",
+    "ward": "Kware",
+    "program": "CONNECT"
+  },
+  {
+    "mflcode": "23786",
+    "facility": "NGARA MAT CLINIC",
+    "type": "Health Facility",
+    "county": "Nairobi",
+    "subcounty": "Starehe",
+    "ward": "Ngara",
+    "program": "CONNECT"
+  }
+];
+
 // Generate mock performance data for facilities
 const generateMockData = (mflCode: string) => {
   const seed = parseInt(mflCode) || 1000;
@@ -104,28 +243,27 @@ export const fetchFacilities = async (): Promise<County[]> => {
   } catch (error) {
     console.error('Error fetching facilities:', error);
     
-    // Return fallback data in case of API failure
-    return [
-      {
-        id: 'nairobi',
-        name: 'Nairobi County',
-        facilities: [
-          {
-            id: 'fallback-1',
-            name: 'Kenyatta National Hospital',
-            mflCode: '10000',
-            type: 'hospital',
-            patients: 2847,
-            htsTests: 1234,
-            careEnrollments: 892,
-            viralSuppression: 94.2,
-            retentionRate: 89.5,
-            subcounty: 'Nairobi Central',
-            ward: 'Central Ward',
-            program: 'CONNECT'
-          }
-        ]
+    // Use fallback data with real facility structure
+    const countiesMap = new Map<string, Facility[]>();
+    
+    fallbackFacilities.forEach(apiFacility => {
+      const facility = transformApiFacility(apiFacility);
+      const countyName = apiFacility.county;
+      
+      if (!countiesMap.has(countyName)) {
+        countiesMap.set(countyName, []);
       }
-    ];
+      
+      countiesMap.get(countyName)!.push(facility);
+    });
+    
+    // Convert to County array and sort
+    const counties: County[] = Array.from(countiesMap.entries()).map(([name, facilities]) => ({
+      id: name.toLowerCase().replace(/\s+/g, '-'),
+      name,
+      facilities: facilities.sort((a, b) => a.name.localeCompare(b.name))
+    }));
+    
+    return counties.sort((a, b) => a.name.localeCompare(b.name));
   }
 };
