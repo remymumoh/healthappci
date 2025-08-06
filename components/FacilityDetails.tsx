@@ -2,23 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Building2, Users, Activity, Heart, Shield, Clock, MapPin, Calendar, TrendingUp, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react-native';
-
-interface Facility {
-  id: string;
-  name: string;
-  type: 'hospital' | 'clinic' | 'health_center';
-  patients: number;
-  htsTests: number;
-  careEnrollments: number;
-  viralSuppression: number;
-  retentionRate: number;
-}
-
-interface County {
-  id: string;
-  name: string;
-  facilities: Facility[];
-}
+import { Facility, County } from '../services/facilityService';
 
 interface FacilityDetailsProps {
   facility: Facility;
@@ -34,6 +18,8 @@ export default function FacilityDetails({ facility, county }: FacilityDetailsPro
         return 'Clinic';
       case 'health_center':
         return 'Health Center';
+      case 'kp_site':
+        return 'KP Site';
       default:
         return 'Facility';
     }
@@ -47,6 +33,8 @@ export default function FacilityDetails({ facility, county }: FacilityDetailsPro
         return <Building2 size={32} color="#10b981" />;
       case 'health_center':
         return <Building2 size={32} color="#f59e0b" />;
+      case 'kp_site':
+        return <Building2 size={32} color="#9c27b0" />;
       default:
         return <Building2 size={32} color="#6b7280" />;
     }
@@ -145,10 +133,15 @@ export default function FacilityDetails({ facility, county }: FacilityDetailsPro
               <Text style={styles.facilityName}>{facility.name}</Text>
               <View style={styles.facilityMeta}>
                 <Text style={styles.facilityType}>{getFacilityTypeLabel(facility.type)}</Text>
+                <Text style={styles.mflCode}>MFL: {facility.mflCode}</Text>
                 <View style={styles.locationContainer}>
                   <MapPin size={14} color="#6b7280" />
                   <Text style={styles.countyName}>{county.name}</Text>
                 </View>
+              </View>
+              <View style={styles.additionalInfo}>
+                <Text style={styles.subcountyText}>📍 {facility.subcounty} • {facility.ward}</Text>
+                <Text style={styles.programText}>🏥 {facility.program}</Text>
               </View>
             </View>
           </View>
@@ -380,22 +373,48 @@ const styles = StyleSheet.create({
   facilityMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginBottom: 8,
   },
   facilityType: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
     color: '#6b7280',
+    marginRight: 16,
+  },
+  mflCode: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#9ca3af',
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 4,
   },
   countyName: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     color: '#6b7280',
     marginLeft: 4,
+  },
+  additionalInfo: {
+    marginTop: 8,
+  },
+  subcountyText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  programText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#3b82f6',
   },
   statsSection: {
     padding: 20,

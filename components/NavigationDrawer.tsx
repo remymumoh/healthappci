@@ -2,26 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronDown, ChevronRight, MapPin, Building2, X, Menu, Activity, Heart, Users } from 'lucide-react-native';
+import { fetchFacilities, Facility, County } from '../services/facilityService';
 
 const { width } = Dimensions.get('window');
 const DRAWER_WIDTH = width * 0.85 > 400 ? 400 : width * 0.85;
-
-interface Facility {
-  id: string;
-  name: string;
-  type: 'hospital' | 'clinic' | 'health_center';
-  patients: number;
-  htsTests: number;
-  careEnrollments: number;
-  viralSuppression: number;
-  retentionRate: number;
-}
-
-interface County {
-  id: string;
-  name: string;
-  facilities: Facility[];
-}
 
 interface NavigationDrawerProps {
   isOpen: boolean;
@@ -31,157 +15,31 @@ interface NavigationDrawerProps {
   children: React.ReactNode;
 }
 
-const mockCounties: County[] = [
-  {
-    id: '1',
-    name: 'Nairobi County',
-    facilities: [
-      {
-        id: '1-1',
-        name: 'Kenyatta National Hospital',
-        type: 'hospital',
-        patients: 2847,
-        htsTests: 1234,
-        careEnrollments: 892,
-        viralSuppression: 94.2,
-        retentionRate: 89.5
-      },
-      {
-        id: '1-2',
-        name: 'Pumwani Maternity Hospital',
-        type: 'hospital',
-        patients: 1456,
-        htsTests: 678,
-        careEnrollments: 445,
-        viralSuppression: 91.8,
-        retentionRate: 87.3
-      },
-      {
-        id: '1-3',
-        name: 'Mbagathi District Hospital',
-        type: 'hospital',
-        patients: 987,
-        htsTests: 432,
-        careEnrollments: 321,
-        viralSuppression: 88.9,
-        retentionRate: 85.1
-      },
-      {
-        id: '1-4',
-        name: 'Mathare North Health Center',
-        type: 'health_center',
-        patients: 654,
-        htsTests: 298,
-        careEnrollments: 187,
-        viralSuppression: 86.4,
-        retentionRate: 82.7
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Nakuru County',
-    facilities: [
-      {
-        id: '2-1',
-        name: 'Nakuru Provincial General Hospital',
-        type: 'hospital',
-        patients: 1876,
-        htsTests: 823,
-        careEnrollments: 567,
-        viralSuppression: 92.1,
-        retentionRate: 88.9
-      },
-      {
-        id: '2-2',
-        name: 'Rift Valley Provincial Hospital',
-        type: 'hospital',
-        patients: 1234,
-        htsTests: 567,
-        careEnrollments: 389,
-        viralSuppression: 90.3,
-        retentionRate: 86.2
-      },
-      {
-        id: '2-3',
-        name: 'Nakuru Health Center',
-        type: 'health_center',
-        patients: 654,
-        htsTests: 298,
-        careEnrollments: 187,
-        viralSuppression: 87.6,
-        retentionRate: 83.4
-      }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Mombasa County',
-    facilities: [
-      {
-        id: '3-1',
-        name: 'Coast Provincial General Hospital',
-        type: 'hospital',
-        patients: 2156,
-        htsTests: 945,
-        careEnrollments: 678,
-        viralSuppression: 93.7,
-        retentionRate: 90.1
-      },
-      {
-        id: '3-2',
-        name: 'Port Reitz District Hospital',
-        type: 'hospital',
-        patients: 1345,
-        htsTests: 589,
-        careEnrollments: 423,
-        viralSuppression: 89.8,
-        retentionRate: 85.9
-      },
-      {
-        id: '3-3',
-        name: 'Tudor Health Center',
-        type: 'health_center',
-        patients: 789,
-        htsTests: 345,
-        careEnrollments: 234,
-        viralSuppression: 85.2,
-        retentionRate: 81.6
-      }
-    ]
-  },
-  {
-    id: '4',
-    name: 'Kisumu County',
-    facilities: [
-      {
-        id: '4-1',
-        name: 'Jaramogi Oginga Odinga Teaching Hospital',
-        type: 'hospital',
-        patients: 1987,
-        htsTests: 876,
-        careEnrollments: 598,
-        viralSuppression: 91.4,
-        retentionRate: 87.8
-      },
-      {
-        id: '4-2',
-        name: 'Kisumu District Hospital',
-        type: 'hospital',
-        patients: 1123,
-        htsTests: 498,
-        careEnrollments: 334,
-        viralSuppression: 88.7,
-        retentionRate: 84.3
-      }
-    ]
-  }
-];
-
 export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, selectedFacility, children }: NavigationDrawerProps) {
   const [expandedCounties, setExpandedCounties] = useState<Set<string>>(new Set());
   const [drawerAnimation] = useState(new Animated.Value(0));
   const [overlayAnimation] = useState(new Animated.Value(0));
+  const [counties, setCounties] = useState<County[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadFacilities = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const facilitiesData = await fetchFacilities();
+        setCounties(facilitiesData);
+      } catch (err) {
+        setError('Failed to load facilities');
+        console.error('Error loading facilities:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFacilities();
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -231,6 +89,8 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
         return <Building2 size={20} color="#388e3c" />;
       case 'health_center':
         return <Building2 size={20} color="#f57c00" />;
+      case 'kp_site':
+        return <Building2 size={20} color="#9c27b0" />;
       default:
         return <Building2 size={20} color="#616161" />;
     }
@@ -244,6 +104,8 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
         return 'Clinic';
       case 'health_center':
         return 'Health Center';
+      case 'kp_site':
+        return 'KP Site';
       default:
         return 'Facility';
     }
@@ -257,6 +119,8 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
         return '#e8f5e8';
       case 'health_center':
         return '#fff3e0';
+      case 'kp_site':
+        return '#f3e5f5';
       default:
         return '#f5f5f5';
     }
@@ -337,7 +201,39 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
           </View>
 
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-            {mockCounties.map((county) => (
+            {loading && (
+              <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>Loading facilities...</Text>
+              </View>
+            )}
+            
+            {error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{error}</Text>
+                <TouchableOpacity 
+                  style={styles.retryButton}
+                  onPress={() => {
+                    const loadFacilities = async () => {
+                      try {
+                        setLoading(true);
+                        setError(null);
+                        const facilitiesData = await fetchFacilities();
+                        setCounties(facilitiesData);
+                      } catch (err) {
+                        setError('Failed to load facilities');
+                      } finally {
+                        setLoading(false);
+                      }
+                    };
+                    loadFacilities();
+                  }}
+                >
+                  <Text style={styles.retryButtonText}>Retry</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            
+            {!loading && !error && counties.map((county) => (
               <View key={county.id} style={styles.countyContainer}>
                 <TouchableOpacity
                   style={styles.countyHeader}
@@ -389,6 +285,7 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
                             <View style={styles.facilityMeta}>
                               <Text style={[styles.facilityType, { color: facility.type === 'hospital' ? '#1976d2' : facility.type === 'clinic' ? '#388e3c' : '#f57c00' }]}>
                                 {getFacilityTypeLabel(facility.type)}
+                                <Text style={styles.programText}>• {facility.program}</Text>
                               </Text>
                             </View>
                           </View>
@@ -635,5 +532,44 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     color: '#424242',
     marginLeft: 6,
+  },
+  loadingContainer: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: '#757575',
+  },
+  errorContainer: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: '#d32f2f',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#1976d2',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#ffffff',
+  },
+  programText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#757575',
+    marginLeft: 8,
   },
 });

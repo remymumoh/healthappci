@@ -5,26 +5,10 @@ import { ChartBar as BarChart3, Activity, Heart, TrendingUp, Menu } from 'lucide
 import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 import CalendarFilter, { DateRange } from '../../components/CalendarFilter';
+import { Facility, County } from '../../services/facilityService';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 768;
-
-interface Facility {
-  id: string;
-  name: string;
-  type: 'hospital' | 'clinic' | 'health_center';
-  patients: number;
-  htsTests: number;
-  careEnrollments: number;
-  viralSuppression: number;
-  retentionRate: number;
-}
-
-interface County {
-  id: string;
-  name: string;
-  facilities: Facility[];
-}
 
 export default function Dashboard() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

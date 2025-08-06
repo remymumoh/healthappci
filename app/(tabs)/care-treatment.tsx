@@ -5,23 +5,7 @@ import { Heart, Users, Shield, Clock, Menu, UserPlus, Activity, TrendingUp, Circ
 import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 import CalendarFilter, { DateRange } from '../../components/CalendarFilter';
-
-interface Facility {
-  id: string;
-  name: string;
-  type: 'hospital' | 'clinic' | 'health_center';
-  patients: number;
-  htsTests: number;
-  careEnrollments: number;
-  viralSuppression: number;
-  retentionRate: number;
-}
-
-interface County {
-  id: string;
-  name: string;
-  facilities: Facility[];
-}
+import { Facility, County } from '../../services/facilityService';
 
 export default function CareAndTreatmentScreen() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
