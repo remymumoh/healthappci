@@ -83,6 +83,11 @@ export default function Dashboard() {
           </TouchableOpacity>
         </View>
         <FacilityDetails facility={selectedFacility} county={selectedCounty} />
+        <FacilityDetails 
+          facility={selectedFacility} 
+          county={selectedCounty} 
+          selectedDateRange={selectedDateRange}
+        />
       </NavigationDrawer>
     );
   }

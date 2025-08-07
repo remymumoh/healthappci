@@ -160,6 +160,11 @@ export default function CareAndTreatmentScreen() {
           </TouchableOpacity>
         </View>
         <FacilityDetails facility={selectedFacility} county={selectedCounty} />
+        <FacilityDetails 
+          facility={selectedFacility} 
+          county={selectedCounty} 
+          selectedDateRange={selectedDateRange}
+        />
       </NavigationDrawer>
     );
   }
