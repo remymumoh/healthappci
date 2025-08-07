@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Building2, Users, Activity, Heart, Shield, Clock, MapPin, Calendar, TrendingUp, CircleAlert as AlertCircle, CircleCheck as CheckCircle, BarChart3 } from 'lucide-react-native';
+import { Building2, Users, Activity, Heart, Shield, Clock, MapPin, Calendar, TrendingUp, CircleAlert as AlertCircle, CircleCheck as CheckCircle, ChartBar as BarChart3 } from 'lucide-react-native';
 import { Facility, County, fetchFacilitySummary, FacilitySummaryData, getDateRangeForAPI } from '../services/facilityService';
 import { useState, useEffect } from 'react';
 
@@ -208,65 +208,6 @@ export default function FacilityDetails({ facility, county, selectedDateRange }:
             })}
           </View>
         </View>
-
-        {/* Real-time Data Section */}
-        {selectedDateRange && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <BarChart3 size={20} color="#3b82f6" />
-              <Text style={styles.sectionTitle}>
-                Real-time Data ({selectedDateRange.label})
-              </Text>
-            </View>
-            
-            {loadingSummary ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#3b82f6" />
-                <Text style={styles.loadingText}>Loading facility data...</Text>
-              </View>
-            ) : summaryData ? (
-              <View style={styles.realTimeGrid}>
-                <View style={styles.realTimeCard}>
-                  <Text style={styles.realTimeTitle}>Total Tests</Text>
-                  <Text style={styles.realTimeValue}>{summaryData.totalTests.toLocaleString()}</Text>
-                  <Text style={styles.realTimeSubtext}>All age groups</Text>
-                </View>
-                
-                <View style={styles.realTimeCard}>
-                  <Text style={styles.realTimeTitle}>Male Tests</Text>
-                  <Text style={styles.realTimeValue}>{summaryData.maleTests.toLocaleString()}</Text>
-                  <Text style={styles.realTimeSubtext}>
-                    {summaryData.totalTests > 0 ? Math.round((summaryData.maleTests / summaryData.totalTests) * 100) : 0}% of total
-                  </Text>
-                </View>
-                
-                <View style={styles.realTimeCard}>
-                  <Text style={styles.realTimeTitle}>Female Tests</Text>
-                  <Text style={styles.realTimeValue}>{summaryData.femaleTests.toLocaleString()}</Text>
-                  <Text style={styles.realTimeSubtext}>
-                    {summaryData.totalTests > 0 ? Math.round((summaryData.femaleTests / summaryData.totalTests) * 100) : 0}% of total
-                  </Text>
-                </View>
-                
-                <View style={styles.realTimeCard}>
-                  <Text style={styles.realTimeTitle}>Top Age Group</Text>
-                  <Text style={styles.realTimeValue}>
-                    {Object.entries(summaryData.ageGroups)
-                      .sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A'}
-                  </Text>
-                  <Text style={styles.realTimeSubtext}>
-                    {Object.entries(summaryData.ageGroups)
-                      .sort(([,a], [,b]) => b - a)[0]?.[1] || 0} tests
-                  </Text>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.noDataContainer}>
-                <Text style={styles.noDataText}>No data available for selected period</Text>
-              </View>
-            )}
-          </View>
-        )}
 
         {/* Monthly Performance Table */}
         <View style={styles.section}>
@@ -731,62 +672,6 @@ const styles = StyleSheet.create({
   activityTime: {
     fontSize: 12,
     fontFamily: 'Inter-Regular',
-    color: '#6b7280',
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-  },
-  loadingText: {
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
-    color: '#6b7280',
-    marginTop: 12,
-  },
-  realTimeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  realTimeCard: {
-    width: '48%',
-    backgroundColor: '#f9fafb',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  realTimeTitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#6b7280',
-    marginBottom: 8,
-  },
-  realTimeValue: {
-    fontSize: 24,
-    fontFamily: 'Inter-Bold',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  realTimeSubtext: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#9ca3af',
-  },
-  noDataContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-    backgroundColor: '#f9fafb',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  noDataText: {
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
     color: '#6b7280',
   },
 });
