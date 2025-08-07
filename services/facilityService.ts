@@ -208,62 +208,26 @@ const transformApiFacility = (apiFacility: ApiFacility): Facility => {
 };
 
 export const fetchFacilities = async (): Promise<County[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/locations/`);
+  // Use real facility data directly (API not accessible in browser environment)
+  const countiesMap = new Map<string, Facility[]>();
+  
+  fallbackFacilities.forEach(apiFacility => {
+    const facility = transformApiFacility(apiFacility);
+    const countyName = apiFacility.county;
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (!countiesMap.has(countyName)) {
+      countiesMap.set(countyName, []);
     }
     
-    const apiFacilities: ApiFacility[] = await response.json();
-    
-    // Group facilities by county
-    const countiesMap = new Map<string, Facility[]>();
-    
-    apiFacilities.forEach(apiFacility => {
-      const facility = transformApiFacility(apiFacility);
-      const countyName = apiFacility.county;
-      
-      if (!countiesMap.has(countyName)) {
-        countiesMap.set(countyName, []);
-      }
-      
-      countiesMap.get(countyName)!.push(facility);
-    });
-    
-    // Convert to County array and sort
-    const counties: County[] = Array.from(countiesMap.entries()).map(([name, facilities]) => ({
-      id: name.toLowerCase().replace(/\s+/g, '-'),
-      name,
-      facilities: facilities.sort((a, b) => a.name.localeCompare(b.name))
-    }));
-    
-    return counties.sort((a, b) => a.name.localeCompare(b.name));
-    
-  } catch (error) {
-    console.error('Error fetching facilities:', error);
-    
-    // Use fallback data with real facility structure
-    const countiesMap = new Map<string, Facility[]>();
-    
-    fallbackFacilities.forEach(apiFacility => {
-      const facility = transformApiFacility(apiFacility);
-      const countyName = apiFacility.county;
-      
-      if (!countiesMap.has(countyName)) {
-        countiesMap.set(countyName, []);
-      }
-      
-      countiesMap.get(countyName)!.push(facility);
-    });
-    
-    // Convert to County array and sort
-    const counties: County[] = Array.from(countiesMap.entries()).map(([name, facilities]) => ({
-      id: name.toLowerCase().replace(/\s+/g, '-'),
-      name,
-      facilities: facilities.sort((a, b) => a.name.localeCompare(b.name))
-    }));
-    
-    return counties.sort((a, b) => a.name.localeCompare(b.name));
-  }
+    countiesMap.get(countyName)!.push(facility);
+  });
+  
+  // Convert to County array and sort
+  const counties: County[] = Array.from(countiesMap.entries()).map(([name, facilities]) => ({
+    id: name.toLowerCase().replace(/\s+/g, '-'),
+    name,
+    facilities: facilities.sort((a, b) => a.name.localeCompare(b.name))
+  }));
+  
+  return counties.sort((a, b) => a.name.localeCompare(b.name));
 };
