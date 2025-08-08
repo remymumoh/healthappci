@@ -47,7 +47,7 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
         Animated.timing(drawerAnimation, {
           toValue: 1,
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true, // Changed to true
         }),
         Animated.timing(overlayAnimation, {
           toValue: 1,
@@ -60,7 +60,7 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
         Animated.timing(drawerAnimation, {
           toValue: 0,
           duration: 250,
-          useNativeDriver: false,
+          useNativeDriver: true, // Changed to true
         }),
         Animated.timing(overlayAnimation, {
           toValue: 0,
@@ -142,175 +142,175 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
   });
 
   return (
-    <View style={styles.container}>
-      {/* Main Content */}
-      <Animated.View 
-        style={[
-          styles.contentContainer,
-          {
-            transform: [{ translateX: contentTranslateX }],
-          }
-        ]}
-      >
-        {children}
-      </Animated.View>
-
-      {/* Overlay */}
-      {isOpen && (
-        <Animated.View 
-          style={[
-            styles.overlay,
-            {
-              opacity: overlayOpacity,
-              transform: [{ translateX: contentTranslateX }],
-            }
-          ]}
+      <View style={styles.container}>
+        {/* Main Content */}
+        <Animated.View
+            style={[
+              styles.contentContainer,
+              {
+                transform: [{ translateX: contentTranslateX }],
+              }
+            ]}
         >
-          <TouchableOpacity 
-            style={styles.overlayTouchable} 
-            onPress={onToggle}
-            activeOpacity={1}
-          />
+          {children}
         </Animated.View>
-      )}
 
-      {/* Drawer */}
-      <Animated.View 
-        style={[
-          styles.drawer,
-          {
-            transform: [{ translateX: drawerTranslateX }],
-          }
-        ]}
-      >
-        <SafeAreaView style={styles.drawerContent}>
-          {/* Material Design Header */}
-          <View style={styles.header}>
-            <View style={styles.headerContent}>
-              <View style={styles.headerIcon}>
-                <MapPin size={24} color="#ffffff" />
+        {/* Overlay */}
+        {isOpen && (
+            <Animated.View
+                style={[
+                  styles.overlay,
+                  {
+                    opacity: overlayOpacity,
+                    transform: [{ translateX: contentTranslateX }],
+                  }
+                ]}
+            >
+              <TouchableOpacity
+                  style={styles.overlayTouchable}
+                  onPress={onToggle}
+                  activeOpacity={1}
+              />
+            </Animated.View>
+        )}
+
+        {/* Drawer */}
+        <Animated.View
+            style={[
+              styles.drawer,
+              {
+                transform: [{ translateX: drawerTranslateX }],
+              }
+            ]}
+        >
+          <SafeAreaView style={styles.drawerContent}>
+            {/* Material Design Header */}
+            <View style={styles.header}>
+              <View style={styles.headerContent}>
+                <View style={styles.headerIcon}>
+                  <MapPin size={24} color="#ffffff" />
+                </View>
+                <View style={styles.headerText}>
+                  <Text style={styles.headerTitle}>Healthcare Facilities</Text>
+                  <Text style={styles.headerSubtitle}>Browse by location</Text>
+                </View>
               </View>
-              <View style={styles.headerText}>
-                <Text style={styles.headerTitle}>Healthcare Facilities</Text>
-                <Text style={styles.headerSubtitle}>Browse by location</Text>
-              </View>
+              <TouchableOpacity onPress={onToggle} style={styles.closeButton}>
+                <X size={24} color="#ffffff" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={onToggle} style={styles.closeButton}>
-              <X size={24} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
 
-          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-            {loading && (
-              <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>Loading facilities...</Text>
-              </View>
-            )}
-            
-            {error && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error}</Text>
-                <TouchableOpacity 
-                  style={styles.retryButton}
-                  onPress={() => {
-                    const loadFacilities = async () => {
-                      try {
-                        setLoading(true);
-                        setError(null);
-                        const facilitiesData = await fetchFacilities();
-                        setCounties(facilitiesData);
-                      } catch (err) {
-                        setError('Failed to load facilities');
-                      } finally {
-                        setLoading(false);
-                      }
-                    };
-                    loadFacilities();
-                  }}
-                >
-                  <Text style={styles.retryButtonText}>Retry</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            
-            {!loading && !error && counties.map((county) => (
-              <View key={county.id} style={styles.countyContainer}>
-                <TouchableOpacity
-                  style={styles.countyHeader}
-                  onPress={() => toggleCounty(county.id)}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.countyHeaderContent}>
-                    <View style={styles.countyIcon}>
-                      <MapPin size={20} color="#1976d2" />
-                    </View>
-                    <View style={styles.countyInfo}>
-                      <Text style={styles.countyName}>{county.name}</Text>
-                      <Text style={styles.facilityCount}>{county.facilities.length} facilities</Text>
-                    </View>
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+              {loading && (
+                  <View style={styles.loadingContainer}>
+                    <Text style={styles.loadingText}>Loading facilities...</Text>
                   </View>
-                  <View style={[styles.expandIcon, expandedCounties.has(county.id) && styles.expandIconRotated]}>
-                    {expandedCounties.has(county.id) ? (
-                      <ChevronDown size={24} color="#757575" />
-                    ) : (
-                      <ChevronRight size={24} color="#757575" />
+              )}
+
+              {error && (
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{error}</Text>
+                    <TouchableOpacity
+                        style={styles.retryButton}
+                        onPress={() => {
+                          const loadFacilities = async () => {
+                            try {
+                              setLoading(true);
+                              setError(null);
+                              const facilitiesData = await fetchFacilities();
+                              setCounties(facilitiesData);
+                            } catch (err) {
+                              setError('Failed to load facilities');
+                            } finally {
+                              setLoading(false);
+                            }
+                          };
+                          loadFacilities();
+                        }}
+                    >
+                      <Text style={styles.retryButtonText}>Retry</Text>
+                    </TouchableOpacity>
+                  </View>
+              )}
+
+              {!loading && !error && counties.map((county) => (
+                  <View key={county.id} style={styles.countyContainer}>
+                    <TouchableOpacity
+                        style={styles.countyHeader}
+                        onPress={() => toggleCounty(county.id)}
+                        activeOpacity={0.7}
+                    >
+                      <View style={styles.countyHeaderContent}>
+                        <View style={styles.countyIcon}>
+                          <MapPin size={20} color="#1976d2" />
+                        </View>
+                        <View style={styles.countyInfo}>
+                          <Text style={styles.countyName}>{county.name}</Text>
+                          <Text style={styles.facilityCount}>{county.facilities.length} facilities</Text>
+                        </View>
+                      </View>
+                      <View style={[styles.expandIcon, expandedCounties.has(county.id) && styles.expandIconRotated]}>
+                        {expandedCounties.has(county.id) ? (
+                            <ChevronDown size={24} color="#757575" />
+                        ) : (
+                            <ChevronRight size={24} color="#757575" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+
+                    {expandedCounties.has(county.id) && (
+                        <View style={styles.facilitiesList}>
+                          {county.facilities.map((facility, index) => (
+                              <TouchableOpacity
+                                  key={facility.id}
+                                  style={[
+                                    styles.facilityItem,
+                                    selectedFacility?.id === facility.id && styles.selectedFacility,
+                                    index === county.facilities.length - 1 && styles.lastFacilityItem
+                                  ]}
+                                  onPress={() => {
+                                    onFacilitySelect(facility, county);
+                                    onToggle();
+                                  }}
+                                  activeOpacity={0.8}
+                              >
+                                <View style={styles.facilityHeader}>
+                                  <View style={[styles.facilityIconContainer, { backgroundColor: getFacilityTypeColor(facility.type) }]}>
+                                    {getFacilityIcon(facility.type)}
+                                  </View>
+                                  <View style={styles.facilityInfo}>
+                                    <Text style={styles.facilityName} numberOfLines={2}>
+                                      {facility.name}
+                                    </Text>
+                                    <View style={styles.facilityMeta}>
+                                      <Text style={[styles.facilityType, { color: facility.type === 'hospital' ? '#1976d2' : facility.type === 'clinic' ? '#388e3c' : '#f57c00' }]}>
+                                        {getFacilityTypeLabel(facility.type)}
+                                        <Text style={styles.programText}>• {facility.program}</Text>
+                                      </Text>
+                                    </View>
+                                  </View>
+                                </View>
+
+                                <View style={styles.facilityStats}>
+                                  <View style={styles.statChip}>
+                                    <Users size={14} color="#616161" />
+                                    <Text style={styles.statText}>{facility.patients.toLocaleString()}</Text>
+                                  </View>
+                                  <View style={styles.statChip}>
+                                    <Activity size={14} color="#616161" />
+                                    <Text style={styles.statText}>{facility.htsTests.toLocaleString()}</Text>
+                                  </View>
+                                </View>
+                              </TouchableOpacity>
+                          ))}
+                        </View>
                     )}
                   </View>
-                </TouchableOpacity>
-
-                {expandedCounties.has(county.id) && (
-                  <View style={styles.facilitiesList}>
-                    {county.facilities.map((facility, index) => (
-                      <TouchableOpacity
-                        key={facility.id}
-                        style={[
-                          styles.facilityItem,
-                          selectedFacility?.id === facility.id && styles.selectedFacility,
-                          index === county.facilities.length - 1 && styles.lastFacilityItem
-                        ]}
-                        onPress={() => {
-                          onFacilitySelect(facility, county);
-                          onToggle();
-                        }}
-                        activeOpacity={0.8}
-                      >
-                        <View style={styles.facilityHeader}>
-                          <View style={[styles.facilityIconContainer, { backgroundColor: getFacilityTypeColor(facility.type) }]}>
-                            {getFacilityIcon(facility.type)}
-                          </View>
-                          <View style={styles.facilityInfo}>
-                            <Text style={styles.facilityName} numberOfLines={2}>
-                              {facility.name}
-                            </Text>
-                            <View style={styles.facilityMeta}>
-                              <Text style={[styles.facilityType, { color: facility.type === 'hospital' ? '#1976d2' : facility.type === 'clinic' ? '#388e3c' : '#f57c00' }]}>
-                                {getFacilityTypeLabel(facility.type)}
-                                <Text style={styles.programText}>• {facility.program}</Text>
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                        
-                        <View style={styles.facilityStats}>
-                          <View style={styles.statChip}>
-                            <Users size={14} color="#616161" />
-                            <Text style={styles.statText}>{facility.patients.toLocaleString()}</Text>
-                          </View>
-                          <View style={styles.statChip}>
-                            <Activity size={14} color="#616161" />
-                            <Text style={styles.statText}>{facility.htsTests.toLocaleString()}</Text>
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </View>
-            ))}
-          </ScrollView>
-        </SafeAreaView>
-      </Animated.View>
-    </View>
+              ))}
+            </ScrollView>
+          </SafeAreaView>
+        </Animated.View>
+      </View>
   );
 }
 
