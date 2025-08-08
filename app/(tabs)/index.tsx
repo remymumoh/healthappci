@@ -53,135 +53,136 @@ export default function Dashboard() {
     setSelectedCounty(county);
   };
 
+  const handleBackToDashboard = () => {
+    setSelectedFacility(null);
+    setSelectedCounty(null);
+    setIsDrawerOpen(false); // Also close the drawer when going back
+  };
+
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
-  if (selectedFacility && selectedCounty) {
-    return (
-      <NavigationDrawer
-        isOpen={isDrawerOpen}
-        onToggle={toggleDrawer}
-        onFacilitySelect={handleFacilitySelect}
-        selectedFacility={selectedFacility}
-      >
-        <View style={styles.facilityHeader}>
-          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-            <Menu size={24} color="#374151" />
-          </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={() => {
-              setSelectedFacility(null);
-              setSelectedCounty(null);
-            }}
-            style={styles.backButton}
-          >
-            <Text style={styles.backButtonText}>← Back to Dashboard</Text>
-          </TouchableOpacity>
-        </View>
-        <FacilityDetails facility={selectedFacility} county={selectedCounty} />
-      </NavigationDrawer>
-    );
-  }
-
   return (
-    <NavigationDrawer
-      isOpen={isDrawerOpen}
-      onToggle={toggleDrawer}
-      onFacilitySelect={handleFacilitySelect}
-      selectedFacility={selectedFacility}
-    >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-            <Menu size={24} color="#374151" />
-          </TouchableOpacity>
-          <View style={styles.headerContent}>
-            <Text style={styles.title}>Healthcare Dashboard</Text>
-            <Text style={styles.subtitle}>National Health Data Overview</Text>
-          </View>
-        </View>
+      <NavigationDrawer
+          isOpen={isDrawerOpen}
+          onToggle={toggleDrawer}
+          onFacilitySelect={handleFacilitySelect}
+          selectedFacility={selectedFacility}
+      >
+        {selectedFacility && selectedCounty ? (
+            // Facility Details View
+            <SafeAreaView style={styles.container}>
+              <View style={styles.facilityHeader}>
+                <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+                  <Menu size={24} color="#374151" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={handleBackToDashboard}
+                    style={styles.backButton}
+                    activeOpacity={0.7}
+                >
+                  <Text style={styles.backButtonText}>← Back to Dashboard</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.facilityDetailsContainer}>
+                <FacilityDetails facility={selectedFacility} county={selectedCounty} />
+              </View>
+            </SafeAreaView>
+        ) : (
+            // Dashboard Overview
+            <SafeAreaView style={styles.container}>
+              <View style={styles.headerContainer}>
+                <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
+                  <Menu size={24} color="#374151" />
+                </TouchableOpacity>
+                <View style={styles.headerContent}>
+                  <Text style={styles.title}>Healthcare Dashboard</Text>
+                  <Text style={styles.subtitle}>National Health Data Overview</Text>
+                </View>
+              </View>
 
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          {/* Calendar Filter */}
-          <View style={styles.filterSection}>
-            <CalendarFilter />
-          </View>
+              <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+                {/* Calendar Filter */}
+                <View style={styles.filterSection}>
+                  <CalendarFilter />
+                </View>
 
-          <View style={styles.statsGrid}>
-            {overviewStats.map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
-                <View key={index} style={[styles.statCard, isLargeScreen && styles.statCardLarge]}>
-                  <View style={styles.statHeader}>
-                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
-                      <IconComponent size={24} color={stat.color} />
+                <View style={styles.statsGrid}>
+                  {overviewStats.map((stat, index) => {
+                    const IconComponent = stat.icon;
+                    return (
+                        <View key={index} style={[styles.statCard, isLargeScreen && styles.statCardLarge]}>
+                          <View style={styles.statHeader}>
+                            <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                              <IconComponent size={24} color={stat.color} />
+                            </View>
+                            <Text style={styles.statTitle}>{stat.title}</Text>
+                          </View>
+                          <View style={styles.statContent}>
+                            <Text style={styles.statValue}>{stat.value}</Text>
+                            <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                          </View>
+                        </View>
+                    );
+                  })}
+                </View>
+
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Quick Access</Text>
+                  <Text style={styles.sectionDescription}>
+                    Select a category below to view detailed healthcare data and analytics.
+                  </Text>
+
+                  <View style={styles.quickAccessGrid}>
+                    <View style={styles.quickAccessCard}>
+                      <Activity size={32} color="#3b82f6" />
+                      <Text style={styles.quickAccessTitle}>HIV Testing Services</Text>
+                      <Text style={styles.quickAccessDescription}>
+                        View HTS data, testing rates, and program performance metrics
+                      </Text>
                     </View>
-                    <Text style={styles.statTitle}>{stat.title}</Text>
-                  </View>
-                  <View style={styles.statContent}>
-                    <Text style={styles.statValue}>{stat.value}</Text>
-                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Access</Text>
-            <Text style={styles.sectionDescription}>
-              Select a category below to view detailed healthcare data and analytics.
-            </Text>
-            
-            <View style={styles.quickAccessGrid}>
-              <View style={styles.quickAccessCard}>
-                <Activity size={32} color="#3b82f6" />
-                <Text style={styles.quickAccessTitle}>HIV Testing Services</Text>
-                <Text style={styles.quickAccessDescription}>
-                  View HTS data, testing rates, and program performance metrics
-                </Text>
-              </View>
-              
-              <View style={styles.quickAccessCard}>
-                <Heart size={32} color="#ef4444" />
-                <Text style={styles.quickAccessTitle}>Care & Treatment</Text>
-                <Text style={styles.quickAccessDescription}>
-                  Monitor patient care, retention rates, and treatment outcomes
-                </Text>
-              </View>
-            </View>
-          </View>
+                    <View style={styles.quickAccessCard}>
+                      <Heart size={32} color="#ef4444" />
+                      <Text style={styles.quickAccessTitle}>Care & Treatment</Text>
+                      <Text style={styles.quickAccessDescription}>
+                        Monitor patient care, retention rates, and treatment outcomes
+                      </Text>
+                    </View>
+                  </View>
+                </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Updates</Text>
-            <View style={styles.updatesList}>
-              <View style={styles.updateItem}>
-                <View style={styles.updateDot} />
-                <View style={styles.updateContent}>
-                  <Text style={styles.updateTitle}>Quarterly HTS Report Published</Text>
-                  <Text style={styles.updateTime}>2 hours ago</Text>
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Recent Updates</Text>
+                  <View style={styles.updatesList}>
+                    <View style={styles.updateItem}>
+                      <View style={styles.updateDot} />
+                      <View style={styles.updateContent}>
+                        <Text style={styles.updateTitle}>Quarterly HTS Report Published</Text>
+                        <Text style={styles.updateTime}>2 hours ago</Text>
+                      </View>
+                    </View>
+                    <View style={styles.updateItem}>
+                      <View style={styles.updateDot} />
+                      <View style={styles.updateContent}>
+                        <Text style={styles.updateTitle}>New Facilities Added in Nakuru County</Text>
+                        <Text style={styles.updateTime}>5 hours ago</Text>
+                      </View>
+                    </View>
+                    <View style={styles.updateItem}>
+                      <View style={styles.updateDot} />
+                      <View style={styles.updateContent}>
+                        <Text style={styles.updateTitle}>Care & Treatment Data Updated</Text>
+                        <Text style={styles.updateTime}>1 day ago</Text>
+                      </View>
+                    </View>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.updateItem}>
-                <View style={styles.updateDot} />
-                <View style={styles.updateContent}>
-                  <Text style={styles.updateTitle}>New Facilities Added in Nakuru County</Text>
-                  <Text style={styles.updateTime}>5 hours ago</Text>
-                </View>
-              </View>
-              <View style={styles.updateItem}>
-                <View style={styles.updateDot} />
-                <View style={styles.updateContent}>
-                  <Text style={styles.updateTitle}>Care & Treatment Data Updated</Text>
-                  <Text style={styles.updateTime}>1 day ago</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </NavigationDrawer>
+              </ScrollView>
+            </SafeAreaView>
+        )}
+      </NavigationDrawer>
   );
 }
 
@@ -208,7 +209,8 @@ const styles = StyleSheet.create({
   facilityHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
@@ -364,6 +366,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     color: '#111827',
     marginBottom: 2,
+  },
+  facilityDetailsContainer: {
+    flex: 1,
+    paddingTop: 0,
   },
   updateTime: {
     fontSize: 12,
