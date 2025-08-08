@@ -1,17 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Calendar, ChevronDown, X, Filter } from 'lucide-react-native';
-
-export interface DateRange {
-  startDate: Date;
-  endDate: Date;
-  label: string;
-}
-
-interface CalendarFilterProps {
-  selectedRange: DateRange;
-  onRangeChange: (range: DateRange) => void;
-}
+import { useDateRange, DateRange } from '../contexts/DateRangeContext';
 
 const quarterPresets: DateRange[] = [
   {
@@ -35,14 +25,24 @@ const quarterPresets: DateRange[] = [
     label: 'Q4 2024'
   },
   {
-    startDate: new Date(2023, 0, 1), // January 1, 2023
-    endDate: new Date(2023, 11, 31), // December 31, 2023
-    label: 'Full Year 2023'
+    startDate: new Date(2025, 0, 1), // January 1, 2025
+    endDate: new Date(2025, 2, 31), // March 31, 2025
+    label: 'Q1 2025'
   },
   {
-    startDate: new Date(2024, 0, 1), // January 1, 2024
-    endDate: new Date(2024, 11, 31), // December 31, 2024
-    label: 'Full Year 2024'
+    startDate: new Date(2025, 3, 1), // April 1, 2025
+    endDate: new Date(2025, 5, 30), // June 30, 2025
+    label: 'Q2 2025'
+  },
+  {
+    startDate: new Date(2025, 6, 1), // July 1, 2025
+    endDate: new Date(2025, 8, 30), // September 30, 2025
+    label: 'Q3 2025'
+  },
+  {
+    startDate: new Date(2025, 9, 1), // October 1, 2025
+    endDate: new Date(2025, 11, 31), // December 31, 2025
+    label: 'Q4 2025'
   }
 ];
 
@@ -76,19 +76,80 @@ const monthPresets: DateRange[] = [
     startDate: new Date(2024, 5, 1), // June 2024
     endDate: new Date(2024, 5, 30),
     label: 'June 2024'
+  },
+  {
+    startDate: new Date(2024, 6, 1), // July 2024
+    endDate: new Date(2024, 6, 31),
+    label: 'July 2024'
+  },
+  {
+    startDate: new Date(2024, 7, 1), // August 2024
+    endDate: new Date(2024, 7, 31),
+    label: 'August 2024'
+  },
+  {
+    startDate: new Date(2024, 8, 1), // September 2024
+    endDate: new Date(2024, 8, 30),
+    label: 'September 2024'
+  },
+  {
+    startDate: new Date(2024, 9, 1), // October 2024
+    endDate: new Date(2024, 9, 31),
+    label: 'October 2024'
+  },
+  {
+    startDate: new Date(2024, 10, 1), // November 2024
+    endDate: new Date(2024, 10, 30),
+    label: 'November 2024'
+  },
+  {
+    startDate: new Date(2024, 11, 1), // December 2024
+    endDate: new Date(2024, 11, 31),
+    label: 'December 2024'
+  },
+  {
+    startDate: new Date(2025, 0, 1), // January 2025
+    endDate: new Date(2025, 0, 31),
+    label: 'January 2025'
+  },
+  {
+    startDate: new Date(2025, 1, 1), // February 2025
+    endDate: new Date(2025, 1, 28),
+    label: 'February 2025'
+  },
+  {
+    startDate: new Date(2025, 2, 1), // March 2025
+    endDate: new Date(2025, 2, 31),
+    label: 'March 2025'
+  },
+  {
+    startDate: new Date(2025, 3, 1), // April 2025
+    endDate: new Date(2025, 3, 30),
+    label: 'April 2025'
+  },
+  {
+    startDate: new Date(2025, 4, 1), // May 2025
+    endDate: new Date(2025, 4, 31),
+    label: 'May 2025'
+  },
+  {
+    startDate: new Date(2025, 5, 1), // June 2025
+    endDate: new Date(2025, 5, 30),
+    label: 'June 2025'
   }
 ];
 
-export default function CalendarFilter({ selectedRange, onRangeChange }: CalendarFilterProps) {
+export default function CalendarFilter() {
+  const { selectedDateRange, setSelectedDateRange } = useDateRange();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<'quarters' | 'months' | 'custom'>('quarters');
+  const [activeTab, setActiveTab] = useState<'quarters' | 'months' | 'custom'>('months');
 
   const formatDateRange = (range: DateRange) => {
     return range.label;
   };
 
   const handlePresetSelect = (preset: DateRange) => {
-    onRangeChange(preset);
+    setSelectedDateRange(preset);
     setIsModalVisible(false);
   };
 
@@ -125,8 +186,8 @@ export default function CalendarFilter({ selectedRange, onRangeChange }: Calenda
   );
 
   const isPresetSelected = (preset: DateRange) => {
-    return preset.startDate.getTime() === selectedRange.startDate.getTime() &&
-           preset.endDate.getTime() === selectedRange.endDate.getTime();
+    return preset.startDate.getTime() === selectedDateRange.startDate.getTime() &&
+           preset.endDate.getTime() === selectedDateRange.endDate.getTime();
   };
 
   return (
@@ -140,7 +201,7 @@ export default function CalendarFilter({ selectedRange, onRangeChange }: Calenda
           <Calendar size={20} color="#3b82f6" />
           <View style={styles.filterTextContainer}>
             <Text style={styles.filterLabel}>Period</Text>
-            <Text style={styles.filterValue}>{formatDateRange(selectedRange)}</Text>
+            <Text style={styles.filterValue}>{formatDateRange(selectedDateRange)}</Text>
           </View>
           <ChevronDown size={20} color="#6b7280" />
         </View>

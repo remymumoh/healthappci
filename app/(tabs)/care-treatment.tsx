@@ -4,18 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, Users, Shield, Clock, Menu, UserPlus, Activity, TrendingUp, CircleAlert as AlertCircle, CircleCheck as CheckCircle, FileText, Calendar, Pill, Stethoscope, ChartBar as BarChart3 } from 'lucide-react-native';
 import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
-import CalendarFilter, { DateRange } from '../../components/CalendarFilter';
+import CalendarFilter from '../../components/CalendarFilter';
+import { useDateRange } from '../../contexts/DateRangeContext';
 import { Facility, County } from '../../services/facilityService';
 
 export default function CareAndTreatmentScreen() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
-  const [selectedDateRange, setSelectedDateRange] = useState<DateRange>({
-    startDate: new Date(2024, 9, 1), // Q4 2024
-    endDate: new Date(2024, 11, 31),
-    label: 'Q4 2024'
-  });
+  const { selectedDateRange } = useDateRange();
 
   const overviewStats = [
     {
@@ -160,11 +157,6 @@ export default function CareAndTreatmentScreen() {
           </TouchableOpacity>
         </View>
         <FacilityDetails facility={selectedFacility} county={selectedCounty} />
-        <FacilityDetails 
-          facility={selectedFacility} 
-          county={selectedCounty} 
-          selectedDateRange={selectedDateRange}
-        />
       </NavigationDrawer>
     );
   }
@@ -190,10 +182,7 @@ export default function CareAndTreatmentScreen() {
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Calendar Filter */}
           <View style={styles.filterSection}>
-            <CalendarFilter
-              selectedRange={selectedDateRange}
-              onRangeChange={setSelectedDateRange}
-            />
+            <CalendarFilter />
           </View>
 
           {/* Overview Stats */}

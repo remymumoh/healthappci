@@ -1,28 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Building2, Users, Activity, Heart, Shield, Clock, MapPin, Calendar, TrendingUp, CircleAlert as AlertCircle, CircleCheck as CheckCircle, ChartBar as BarChart3 } from 'lucide-react-native';
+import { Building2, Users, Activity, Heart, Shield, Clock, MapPin, Calendar, TrendingUp, CircleAlert as AlertCircle, CircleCheck as CheckCircle, ChartBar as BarChart3, User, UserCheck } from 'lucide-react-native';
 import { Facility, County, fetchFacilitySummary, FacilitySummaryData, getDateRangeForAPI } from '../services/facilityService';
 import { useState, useEffect } from 'react';
+import { useDateRange } from '../contexts/DateRangeContext';
 
 interface FacilityDetailsProps {
   facility: Facility;
   county: County;
-  selectedDateRange?: {
-    startDate: Date;
-    endDate: Date;
-    label: string;
-  };
 }
 
-export default function FacilityDetails({ facility, county, selectedDateRange }: FacilityDetailsProps) {
+export default function FacilityDetails({ facility, county }: FacilityDetailsProps) {
+  const { selectedDateRange } = useDateRange();
   const [summaryData, setSummaryData] = useState<FacilitySummaryData | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
 
   useEffect(() => {
     const loadSummaryData = async () => {
-      if (!selectedDateRange) return;
-      
       setLoadingSummary(true);
       try {
         const { startDate, endDate } = getDateRangeForAPI(
@@ -184,6 +179,121 @@ export default function FacilityDetails({ facility, county, selectedDateRange }:
               </View>
             </View>
           </View>
+        </View>
+
+        {/* Real-time API Data Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Activity size={20} color="#3b82f6" />
+            <Text style={styles.sectionTitle}>Live Data - {selectedDateRange.label}</Text>
+          </View>
+          
+          {loadingSummary ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#3b82f6" />
+              <Text style={styles.loadingText}>Loading real-time data...</Text>
+            </View>
+          ) : summaryData ? (
+            <View style={styles.liveDataContainer}>
+              <View style={styles.liveDataGrid}>
+                <View style={styles.liveDataCard}>
+                  <View style={styles.liveDataHeader}>
+                    <Activity size={24} color="#3b82f6" />
+                    <Text style={styles.liveDataTitle}>Total Tests</Text>
+                  </View>
+                  <Text style={styles.liveDataValue}>{summaryData.totalTests.toLocaleString()}</Text>
+                  <Text style={styles.liveDataSubtext}>HTS tests conducted</Text>
+                </View>
+
+                <View style={styles.liveDataCard}>
+                  <View style={styles.liveDataHeader}>
+                    <User size={24} color="#10b981" />
+                    <Text style={styles.liveDataTitle}>Male Tests</Text>
+                  </View>
+                  <Text style={styles.liveDataValue}>{summaryData.maleTests.toLocaleString()}</Text>
+                  <Text style={styles.liveDataSubtext}>{summaryData.malePercentage}% of total</Text>
+                </View>
+
+                <View style={styles.liveDataCard}>
+                  <View style={styles.liveDataHeader}>
+                    <UserCheck size={24} color="#ef4444" />
+                    <Text style={styles.liveDataTitle}>Female Tests</Text>
+                  </View>
+                  <Text style={styles.liveDataValue}>{summaryData.femaleTests.toLocaleString()}</Text>
+                  <Text style={styles.liveDataSubtext}>{summaryData.femalePercentage}% of total</Text>
+                </View>
+
+                <View style={styles.liveDataCard}>
+                  <View style={styles.liveDataHeader}>
+                    <TrendingUp size={24} color="#f59e0b" />
+                    <Text style={styles.liveDataTitle}>Top Age Group</Text>
+                  </View>
+                  <Text style={styles.liveDataValue}>{summaryData.topAgeGroup.ageGroup}</Text>
+                  <Text style={styles.liveDataSubtext}>{summaryData.topAgeGroup.count} tests</Text>
+                </View>
+              </View>
+
+              {/* Gender Breakdown Chart */}
+              <View style={styles.chartContainer}>
+                <Text style={styles.chartTitle}>Gender Distribution</Text>
+                <View style={styles.genderChart}>
+                  <View style={styles.genderBar}>
+                    <View style={[styles.genderSegment, { 
+                      width: `${summaryData.malePercentage}%`, 
+                      backgroundColor: '#3b82f6' 
+                    }]} />
+                    <View style={[styles.genderSegment, { 
+                      width: `${summaryData.femalePercentage}%`, 
+                      backgroundColor: '#ef4444' 
+                    }]} />
+                  </View>
+                  <View style={styles.genderLegend}>
+                    <View style={styles.legendItem}>
+                      <View style={[styles.legendDot, { backgroundColor: '#3b82f6' }]} />
+                      <Text style={styles.legendText}>Male ({summaryData.malePercentage}%)</Text>
+                    </View>
+                    <View style={styles.legendItem}>
+                      <View style={[styles.legendDot, { backgroundColor: '#ef4444' }]} />
+                      <Text style={styles.legendText}>Female ({summaryData.femalePercentage}%)</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Age Groups Breakdown */}
+              <View style={styles.ageGroupsContainer}>
+                <Text style={styles.chartTitle}>Age Group Distribution</Text>
+                <View style={styles.ageGroupsList}>
+                  {Object.entries(summaryData.ageGroups)
+                    .filter(([_, count]) => count > 0)
+                    .sort(([_, a], [__, b]) => b - a)
+                    .slice(0, 6)
+                    .map(([ageGroup, count]) => (
+                      <View key={ageGroup} style={styles.ageGroupItem}>
+                        <Text style={styles.ageGroupLabel}>{ageGroup}</Text>
+                        <View style={styles.ageGroupBar}>
+                          <View 
+                            style={[
+                              styles.ageGroupFill, 
+                              { 
+                                width: `${(count / summaryData.totalTests) * 100}%`,
+                                backgroundColor: '#8b5cf6'
+                              }
+                            ]} 
+                          />
+                        </View>
+                        <Text style={styles.ageGroupCount}>{count}</Text>
+                      </View>
+                    ))}
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.errorContainer}>
+              <AlertCircle size={24} color="#ef4444" />
+              <Text style={styles.errorText}>Unable to load real-time data</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.statsSection}>
@@ -525,6 +635,154 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#ffffff',
     marginTop: 8,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+    marginTop: 12,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  errorText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
+    color: '#ef4444',
+    marginTop: 12,
+  },
+  liveDataContainer: {
+    marginTop: 8,
+  },
+  liveDataGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  liveDataCard: {
+    width: '48%',
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+  },
+  liveDataHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  liveDataTitle: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#475569',
+    marginLeft: 8,
+  },
+  liveDataValue: {
+    fontSize: 28,
+    fontFamily: 'Inter-Bold',
+    color: '#0f172a',
+    marginBottom: 4,
+  },
+  liveDataSubtext: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#64748b',
+  },
+  chartContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  chartTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#334155',
+    marginBottom: 12,
+  },
+  genderChart: {
+    marginTop: 8,
+  },
+  genderBar: {
+    flexDirection: 'row',
+    height: 12,
+    borderRadius: 6,
+    overflow: 'hidden',
+    backgroundColor: '#e2e8f0',
+    marginBottom: 12,
+  },
+  genderSegment: {
+    height: '100%',
+  },
+  genderLegend: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  legendText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#475569',
+  },
+  ageGroupsContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  ageGroupsList: {
+    marginTop: 8,
+  },
+  ageGroupItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  ageGroupLabel: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#475569',
+    width: 60,
+  },
+  ageGroupBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#e2e8f0',
+    borderRadius: 4,
+    marginHorizontal: 12,
+  },
+  ageGroupFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  ageGroupCount: {
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#334155',
+    width: 40,
+    textAlign: 'right',
   },
   tableContainer: {
     backgroundColor: '#f9fafb',

@@ -4,18 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Activity, Users, Target, TrendingUp, Menu } from 'lucide-react-native';
 import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
-import CalendarFilter, { DateRange } from '../../components/CalendarFilter';
+import CalendarFilter from '../../components/CalendarFilter';
+import { useDateRange } from '../../contexts/DateRangeContext';
 import { Facility, County } from '../../services/facilityService';
 
 export default function HTSScreen() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
-  const [selectedDateRange, setSelectedDateRange] = useState<DateRange>({
-    startDate: new Date(2024, 9, 1), // Q4 2024
-    endDate: new Date(2024, 11, 31),
-    label: 'Q4 2024'
-  });
+  const { selectedDateRange } = useDateRange();
 
   const htsStats = [
     {
@@ -80,11 +77,6 @@ export default function HTSScreen() {
           </TouchableOpacity>
         </View>
         <FacilityDetails facility={selectedFacility} county={selectedCounty} />
-        <FacilityDetails 
-          facility={selectedFacility} 
-          county={selectedCounty} 
-          selectedDateRange={selectedDateRange}
-        />
       </NavigationDrawer>
     );
   }
@@ -110,10 +102,7 @@ export default function HTSScreen() {
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Calendar Filter */}
           <View style={styles.filterSection}>
-            <CalendarFilter
-              selectedRange={selectedDateRange}
-              onRangeChange={setSelectedDateRange}
-            />
+            <CalendarFilter />
           </View>
 
           <View style={styles.statsGrid}>

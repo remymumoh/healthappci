@@ -50,6 +50,12 @@ export interface FacilitySummaryData {
     male: number;
     female: number;
   };
+  topAgeGroup: {
+    ageGroup: string;
+    count: number;
+  };
+  malePercentage: number;
+  femalePercentage: number;
 }
 
 const API_BASE_URL = 'http://197.248.180.210:9091/api';
@@ -385,6 +391,16 @@ const processSummaryData = (indicators: SummaryIndicator[]): FacilitySummaryData
     ageGroups[ageGroup] += value;
   });
 
+  // Find top age group
+  const topAgeGroup = Object.entries(ageGroups).reduce(
+    (max, [ageGroup, count]) => count > max.count ? { ageGroup, count } : max,
+    { ageGroup: 'N/A', count: 0 }
+  );
+
+  // Calculate percentages
+  const malePercentage = totalTests > 0 ? Math.round((maleTests / totalTests) * 100) : 0;
+  const femalePercentage = totalTests > 0 ? Math.round((femaleTests / totalTests) * 100) : 0;
+
   return {
     totalTests,
     maleTests,
@@ -393,7 +409,10 @@ const processSummaryData = (indicators: SummaryIndicator[]): FacilitySummaryData
     genderBreakdown: {
       male: maleTests,
       female: femaleTests
-    }
+    },
+    topAgeGroup,
+    malePercentage,
+    femalePercentage
   };
 };
 
@@ -406,24 +425,34 @@ const generateMockSummaryData = (mflCode: string): FacilitySummaryData => {
   const maleTests = Math.floor(totalTests * 0.4); // 40% male
   const femaleTests = totalTests - maleTests; // 60% female
   
+  const ageGroups = {
+    '15-19': random(5, 25),
+    '20-24': random(10, 40),
+    '25-29': random(15, 45),
+    '30-34': random(10, 35),
+    '35-39': random(5, 20),
+    '40-44': random(2, 15),
+    '45-49': random(1, 10),
+    '50-54': random(0, 5),
+  };
+
+  const topAgeGroup = Object.entries(ageGroups).reduce(
+    (max, [ageGroup, count]) => count > max.count ? { ageGroup, count } : max,
+    { ageGroup: '25-29', count: ageGroups['25-29'] }
+  );
+
   return {
     totalTests,
     maleTests,
     femaleTests,
-    ageGroups: {
-      '15-19': random(5, 25),
-      '20-24': random(10, 40),
-      '25-29': random(15, 45),
-      '30-34': random(10, 35),
-      '35-39': random(5, 20),
-      '40-44': random(2, 15),
-      '45-49': random(1, 10),
-      '50-54': random(0, 5),
-    },
+    ageGroups,
     genderBreakdown: {
       male: maleTests,
       female: femaleTests
-    }
+    },
+    topAgeGroup,
+    malePercentage: Math.round((maleTests / totalTests) * 100),
+    femalePercentage: Math.round((femaleTests / totalTests) * 100)
   };
 };
 
@@ -494,19 +523,5 @@ export const getDateRangeForAPI = (startDate: Date, endDate: Date) => {
   return {
     startDate: formatDateForAPI(startDate),
     endDate: formatDateForAPI(endDate)
-  };
-};
-
-// Generate mock performance data for facilities (keeping existing function)
-const generateMockPerformanceData = (mflCode: string) => {
-  const seed = parseInt(mflCode) || 1000;
-  const random = (min: number, max: number) => Math.floor((seed * 9301 + 49297) % 233280 / 233280 * (max - min) + min);
-  
-  return {
-    patients: random(200, 3000),
-    htsTests: random(100, 1500),
-    careEnrollments: random(50, 800),
-    viralSuppression: random(80, 95),
-    retentionRate: random(75, 92)
   };
 };
