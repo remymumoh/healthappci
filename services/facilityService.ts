@@ -17,6 +17,15 @@ export interface SummaryIndicator {
   total_value: number;
 }
 
+export interface ApiSummaryResponse {
+  locationid: string;
+  total_value: number;
+  gender_breakdown: {
+    female: number;
+    male: number;
+  };
+}
+
 export interface Facility {
   id: string;
   name: string;
@@ -514,155 +523,149 @@ export const fetchMultipleFacilitiesSummary = async (
 };
 
 // Fetch HTS dashboard summary data across all facilities
-export const fetchHTSDashboardData = async (
+export const fetchHTSUptakeData = async (
   startDate: string,
   endDate: string,
-  facilityMflCodes: string[]
+  facilityMflCodes: string[],
+  reportDept: string = 'HTS_UPTAKE',
+  modality: string = 'NEW_TESTING'
 ): Promise<{
-  totalTested: number;
-  positive: number;
-  retest: number;
+  totalValue: number;
+  maleCount: number;
+  femaleCount: number;
+  malePercentage: number;
+  femalePercentage: number;
 }> => {
   try {
-    console.log(`Fetching HTS dashboard data for ${facilityMflCodes.length} facilities...`);
+    console.log(`Fetching ${reportDept}/${modality} data for ${facilityMflCodes.length} facilities...`);
     
     // Prepare location IDs for API call
     const locationIds = facilityMflCodes.join('%2C'); // URL encode comma
     
-    // Make three parallel API calls for each modality
-    const [totalTestedResponse, positiveResponse, retestResponse] = await Promise.all([
-      // HTS_TOTAL_TESTED with NEW_TESTING modality
-      fetch(`${API_BASE_URL}/summary/total/?reportdept=HTS_UPTAKE&modality=NEW_TESTING&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }),
-      // HTS_POSITIVE with REPEAT_TESTING modality
-      fetch(`${API_BASE_URL}/summary/total/?reportdept=HTS_UPTAKE&modality=REPEAT_TESTING&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }),
-      // HTS_RETEST with TOTAL_POSITIVE modality
-      fetch(`${API_BASE_URL}/summary/total/?reportdept=HTS_UPTAKE&modality=TOTAL_POSITIVE&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
-    ]);
+    // Make API call
+    const response = await fetch(`${API_BASE_URL}/summary/total/?reportdept=${reportDept}&modality=${modality}&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-    // Check if all responses are ok
-    if (!totalTestedResponse.ok || !positiveResponse.ok || !retestResponse.ok) {
-      throw new Error('One or more API calls failed');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    // Parse responses
-    const [totalTestedData, positiveData, retestData] = await Promise.all([
-      totalTestedResponse.json() as Promise<SummaryIndicator[]>,
-      positiveResponse.json() as Promise<SummaryIndicator[]>,
-      retestResponse.json() as Promise<SummaryIndicator[]>
-    ]);
+    const data: ApiSummaryResponse[] = await response.json();
+    console.log(`${reportDept}/${modality} API results:`, data);
 
-    // Calculate totals from each dataset
-    const totalTested = totalTestedData.reduce((sum, indicator) => sum + indicator.total_value, 0);
-    const positive = positiveData.reduce((sum, indicator) => sum + indicator.total_value, 0);
-    const retest = retestData.reduce((sum, indicator) => sum + indicator.total_value, 0);
+    // Aggregate data from all locations
+    let totalValue = 0;
+    let maleCount = 0;
+    let femaleCount = 0;
 
-    console.log('HTS Dashboard API results:', { totalTested, positive, retest });
+    data.forEach(item => {
+      totalValue += item.total_value;
+      maleCount += item.gender_breakdown.male;
+      femaleCount += item.gender_breakdown.female;
+    });
+
+    // Calculate percentages
+    const malePercentage = totalValue > 0 ? Math.round((maleCount / totalValue) * 100) : 0;
+    const femalePercentage = totalValue > 0 ? Math.round((femaleCount / totalValue) * 100) : 0;
 
     return {
-      totalTested,
-      positive,
-      retest
+      totalValue,
+      maleCount,
+      femaleCount,
+      malePercentage,
+      femalePercentage
     };
   } catch (error) {
-    console.log('HTS Dashboard API fetch failed, using mock data:', error);
+    console.log(`${reportDept}/${modality} API fetch failed, using mock data:`, error);
     
     // Generate mock data based on facility count
     const facilityCount = facilityMflCodes.length;
+    const mockTotal = Math.floor(facilityCount * 45);
+    const mockMale = Math.floor(mockTotal * 0.4);
+    const mockFemale = mockTotal - mockMale;
+    
     return {
-      totalTested: Math.floor(facilityCount * 45), // ~45 tests per facility
-      positive: Math.floor(facilityCount * 2.3), // ~2.3 positive per facility
-      retest: Math.floor(facilityCount * 8.7) // ~8.7 retests per facility
+      totalValue: mockTotal,
+      maleCount: mockMale,
+      femaleCount: mockFemale,
+      malePercentage: 40,
+      femalePercentage: 60
     };
   }
 };
 
-// Fetch HTS_TST entry points data
-export const fetchHTSTSTData = async (
+// Fetch Care & Treatment dashboard data
+export const fetchCareAndTreatmentData = async (
   startDate: string,
   endDate: string,
-  facilityMflCodes: string[]
+  facilityMflCodes: string[],
+  reportDept: string,
+  modality: string
 ): Promise<{
-  opd: number;
-  ipd: number;
-  tb: number;
-  sti: number;
+  totalValue: number;
+  maleCount: number;
+  femaleCount: number;
+  malePercentage: number;
+  femalePercentage: number;
 }> => {
   try {
-    console.log(`Fetching HTS_TST data for ${facilityMflCodes.length} facilities...`);
+    console.log(`Fetching ${reportDept}/${modality} data for ${facilityMflCodes.length} facilities...`);
     
     // Prepare location IDs for API call
     const locationIds = facilityMflCodes.join('%2C'); // URL encode comma
     
-    // Make four parallel API calls for each entry point
-    const [opdResponse, ipdResponse, tbResponse, stiResponse] = await Promise.all([
-      // OPD entry point
-      fetch(`${API_BASE_URL}/summary/total/?reportdept=HTS_TST&modality=OPD&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }),
-      // IPD entry point
-      fetch(`${API_BASE_URL}/summary/total/?reportdept=HTS_TST&modality=IPD&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }),
-      // TB entry point
-      fetch(`${API_BASE_URL}/summary/total/?reportdept=HTS_TST&modality=TB&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }),
-      // STI entry point
-      fetch(`${API_BASE_URL}/summary/total/?reportdept=HTS_TST&modality=STI&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
-    ]);
+    // Make API call
+    const response = await fetch(`${API_BASE_URL}/summary/total/?reportdept=${reportDept}&modality=${modality}&locationid=${locationIds}&startdate=${startDate}&enddate=${endDate}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-    // Check if all responses are ok
-    if (!opdResponse.ok || !ipdResponse.ok || !tbResponse.ok || !stiResponse.ok) {
-      throw new Error('One or more API calls failed');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    // Parse responses
-    const [opdData, ipdData, tbData, stiData] = await Promise.all([
-      opdResponse.json() as Promise<SummaryIndicator[]>,
-      ipdResponse.json() as Promise<SummaryIndicator[]>,
-      tbResponse.json() as Promise<SummaryIndicator[]>,
-      stiResponse.json() as Promise<SummaryIndicator[]>
-    ]);
+    const data: ApiSummaryResponse[] = await response.json();
+    console.log(`${reportDept}/${modality} API results:`, data);
 
-    // Calculate totals from each dataset
-    const opd = opdData.reduce((sum, indicator) => sum + indicator.total_value, 0);
-    const ipd = ipdData.reduce((sum, indicator) => sum + indicator.total_value, 0);
-    const tb = tbData.reduce((sum, indicator) => sum + indicator.total_value, 0);
-    const sti = stiData.reduce((sum, indicator) => sum + indicator.total_value, 0);
+    // Aggregate data from all locations
+    let totalValue = 0;
+    let maleCount = 0;
+    let femaleCount = 0;
 
-    console.log('HTS_TST API results:', { opd, ipd, tb, sti });
+    data.forEach(item => {
+      totalValue += item.total_value;
+      maleCount += item.gender_breakdown.male;
+      femaleCount += item.gender_breakdown.female;
+    });
+
+    // Calculate percentages
+    const malePercentage = totalValue > 0 ? Math.round((maleCount / totalValue) * 100) : 0;
+    const femalePercentage = totalValue > 0 ? Math.round((femaleCount / totalValue) * 100) : 0;
 
     return {
-      opd,
-      ipd,
-      tb,
-      sti
+      totalValue,
+      maleCount,
+      femaleCount,
+      malePercentage,
+      femalePercentage
     };
   } catch (error) {
-    console.log('HTS_TST API fetch failed, using mock data:', error);
+    console.log(`${reportDept}/${modality} API fetch failed, using mock data:`, error);
     
     // Generate mock data based on facility count
     const facilityCount = facilityMflCodes.length;
+    const mockTotal = Math.floor(facilityCount * 125);
+    const mockMale = Math.floor(mockTotal * 0.45);
+    const mockFemale = mockTotal - mockMale;
+    
     return {
-      opd: Math.floor(facilityCount * 125), // ~125 OPD tests per facility
-      ipd: Math.floor(facilityCount * 45), // ~45 IPD tests per facility
-      tb: Math.floor(facilityCount * 78), // ~78 TB tests per facility
-      sti: Math.floor(facilityCount * 92) // ~92 STI tests per facility
+      totalValue: mockTotal,
+      maleCount: mockMale,
+      femaleCount: mockFemale,
+      malePercentage: 45,
+      femalePercentage: 55
     };
   }
 };

@@ -15,15 +15,15 @@ export default function CareAndTreatmentScreen() {
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
   const [counties, setCounties] = useState<County[]>([]);
   const [careData, setCareData] = useState({
-    newlyEnrolled: 0,
-    txCurr: 0,
-    totalPatient: 0,
-    vlEligibility: 0,
-    validViralLoad: 0,
-    vlSuppression: 0,
-    hvl: 0,
-    lvl: 0,
-    ldlOutcome: 0
+    newlyEnrolled: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    txCurr: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    totalPatient: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    vlEligibility: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    validViralLoad: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    vlSuppression: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    hvl: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    lvl: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    ldlOutcome: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 }
   });
   const [loadingCareData, setLoadingCareData] = useState(true);
   const { selectedDateRange } = useDateRange();

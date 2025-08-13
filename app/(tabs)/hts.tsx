@@ -15,9 +15,9 @@ export default function HTSScreen() {
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
   const [counties, setCounties] = useState<County[]>([]);
   const [htsData, setHtsData] = useState({
-    totalTested: 0,
-    positive: 0,
-    retest: 0
+    newTesting: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    repeatTesting: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    totalPositive: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 }
   });
   const [loadingHtsData, setLoadingHtsData] = useState(true);
   const { selectedDateRange } = useDateRange();
@@ -58,8 +58,18 @@ export default function HTSScreen() {
           selectedDateRange.endDate
         );
         
-        const data = await fetchHTSDashboardData(startDate, endDate, mflCodes);
-        setHtsData(data);
+        // Fetch all three HTS metrics in parallel
+        const [newTestingData, repeatTestingData, totalPositiveData] = await Promise.all([
+          fetchHTSUptakeData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'NEW_TESTING'),
+          fetchHTSUptakeData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'REPEAT_TESTING'),
+          fetchHTSUptakeData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'TOTAL_POSITIVE')
+        ]);
+        
+        setHtsData({
+          newTesting: newTestingData,
+          repeatTesting: repeatTestingData,
+          totalPositive: totalPositiveData
+        });
       } catch (error) {
         console.error('Error loading HTS data:', error);
       } finally {
@@ -73,21 +83,33 @@ export default function HTSScreen() {
   const htsStats = [
     {
       title: 'HTS Total Tested',
-      value: loadingHtsData ? '...' : htsData.totalTested.toLocaleString(),
+      value: loadingHtsData ? '...' : htsData.newTesting.totalValue.toLocaleString(),
+      maleCount: loadingHtsData ? 0 : htsData.newTesting.maleCount,
+      femaleCount: loadingHtsData ? 0 : htsData.newTesting.femaleCount,
+      malePercentage: loadingHtsData ? 0 : htsData.newTesting.malePercentage,
+      femalePercentage: loadingHtsData ? 0 : htsData.newTesting.femalePercentage,
       change: '+12.5%',
       icon: Activity,
       color: '#3b82f6'
     },
     {
       title: 'HTS Positive',
-      value: loadingHtsData ? '...' : htsData.positive.toLocaleString(),
+      value: loadingHtsData ? '...' : htsData.totalPositive.totalValue.toLocaleString(),
+      maleCount: loadingHtsData ? 0 : htsData.totalPositive.maleCount,
+      femaleCount: loadingHtsData ? 0 : htsData.totalPositive.femaleCount,
+      malePercentage: loadingHtsData ? 0 : htsData.totalPositive.malePercentage,
+      femalePercentage: loadingHtsData ? 0 : htsData.totalPositive.femalePercentage,
       change: '+2.1%',
       icon: Target,
       color: '#ef4444'
     },
     {
       title: 'HTS Retest',
-      value: loadingHtsData ? '...' : htsData.retest.toLocaleString(),
+      value: loadingHtsData ? '...' : htsData.repeatTesting.totalValue.toLocaleString(),
+      maleCount: loadingHtsData ? 0 : htsData.repeatTesting.maleCount,
+      femaleCount: loadingHtsData ? 0 : htsData.repeatTesting.femaleCount,
+      malePercentage: loadingHtsData ? 0 : htsData.repeatTesting.malePercentage,
+      femalePercentage: loadingHtsData ? 0 : htsData.repeatTesting.femalePercentage,
       change: '+5.7%',
       icon: TrendingUp,
       color: '#f59e0b'
@@ -193,6 +215,18 @@ export default function HTSScreen() {
                     <Text style={styles.statValue}>{stat.value}</Text>
                     <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
                   </View>
+                  {!loadingHtsData && (
+                    <View style={styles.genderBreakdown}>
+                      <View style={styles.genderRow}>
+                        <Text style={styles.genderLabel}>Male:</Text>
+                        <Text style={styles.genderValue}>{stat.maleCount.toLocaleString()} ({stat.malePercentage}%)</Text>
+                      </View>
+                      <View style={styles.genderRow}>
+                        <Text style={styles.genderLabel}>Female:</Text>
+                        <Text style={styles.genderValue}>{stat.femaleCount.toLocaleString()} ({stat.femalePercentage}%)</Text>
+                      </View>
+                    </View>
+                  )}
                 </View>
               );
             })}
@@ -334,6 +368,28 @@ const styles = StyleSheet.create({
   statChange: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
+  },
+  genderBreakdown: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+  },
+  genderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  genderLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+  },
+  genderValue: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#111827',
   },
   additionalStatsGrid: {
     flexDirection: 'row',

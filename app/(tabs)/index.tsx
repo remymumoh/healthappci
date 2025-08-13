@@ -18,13 +18,13 @@ export default function Dashboard() {
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
   const [counties, setCounties] = useState<County[]>([]);
   const [loadingFacilities, setLoadingFacilities] = useState(true);
-  const [htsTstData, setHtsTstData] = useState({
-    opd: 0,
-    ipd: 0,
-    tb: 0,
-    sti: 0
+  const [dashboardData, setDashboardData] = useState({
+    opd: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    ipd: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    tb: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 },
+    sti: { totalValue: 0, maleCount: 0, femaleCount: 0, malePercentage: 0, femalePercentage: 0 }
   });
-  const [loadingHtsTstData, setLoadingHtsTstData] = useState(true);
+  const [loadingDashboardData, setLoadingDashboardData] = useState(true);
   const { selectedDateRange } = useDateRange();
 
   useEffect(() => {
@@ -44,11 +44,11 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const loadHTSTSTData = async () => {
+    const loadDashboardData = async () => {
       if (counties.length === 0) return;
       
       try {
-        setLoadingHtsTstData(true);
+        setLoadingDashboardData(true);
         const { startDate, endDate } = getDateRangeForAPI(
           selectedDateRange.startDate,
           selectedDateRange.endDate
@@ -58,16 +58,28 @@ export default function Dashboard() {
           county.facilities.map(facility => facility.locationId || facility.mflCode)
         );
         
-        const data = await fetchHTSTSTData(startDate, endDate, mflCodes);
-        setHtsTstData(data);
+        // Fetch all four dashboard metrics in parallel
+        const [opdData, ipdData, tbData, stiData] = await Promise.all([
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'HTS_TST', 'OPD'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'HTS_TST', 'IPD'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'HTS_TST', 'TB'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'HTS_TST', 'STI')
+        ]);
+        
+        setDashboardData({
+          opd: opdData,
+          ipd: ipdData,
+          tb: tbData,
+          sti: stiData
+        });
       } catch (error) {
-        console.error('Error loading HTS_TST data:', error);
+        console.error('Error loading dashboard data:', error);
       } finally {
-        setLoadingHtsTstData(false);
+        setLoadingDashboardData(false);
       }
     };
 
-    loadHTSTSTData();
+    loadDashboardData();
   }, [counties, selectedDateRange]);
 
   const totalFacilities = counties.reduce((total, county) => total + county.facilities.length, 0);
@@ -81,28 +93,44 @@ export default function Dashboard() {
   const overviewStats = [
     {
       title: 'OPD',
-      value: loadingHtsTstData ? '...' : htsTstData.opd.toLocaleString(),
+      value: loadingDashboardData ? '...' : dashboardData.opd.totalValue.toLocaleString(),
+      maleCount: loadingDashboardData ? 0 : dashboardData.opd.maleCount,
+      femaleCount: loadingDashboardData ? 0 : dashboardData.opd.femaleCount,
+      malePercentage: loadingDashboardData ? 0 : dashboardData.opd.malePercentage,
+      femalePercentage: loadingDashboardData ? 0 : dashboardData.opd.femalePercentage,
       change: '+8.3%',
       icon: Activity,
       color: '#3b82f6'
     },
     {
       title: 'IPD',
-      value: loadingHtsTstData ? '...' : htsTstData.ipd.toLocaleString(),
+      value: loadingDashboardData ? '...' : dashboardData.ipd.totalValue.toLocaleString(),
+      maleCount: loadingDashboardData ? 0 : dashboardData.ipd.maleCount,
+      femaleCount: loadingDashboardData ? 0 : dashboardData.ipd.femaleCount,
+      malePercentage: loadingDashboardData ? 0 : dashboardData.ipd.malePercentage,
+      femalePercentage: loadingDashboardData ? 0 : dashboardData.ipd.femalePercentage,
       change: '+5.7%',
       icon: BarChart3,
       color: '#10b981'
     },
     {
       title: 'TB',
-      value: loadingHtsTstData ? '...' : htsTstData.tb.toLocaleString(),
+      value: loadingDashboardData ? '...' : dashboardData.tb.totalValue.toLocaleString(),
+      maleCount: loadingDashboardData ? 0 : dashboardData.tb.maleCount,
+      femaleCount: loadingDashboardData ? 0 : dashboardData.tb.femaleCount,
+      malePercentage: loadingDashboardData ? 0 : dashboardData.tb.malePercentage,
+      femalePercentage: loadingDashboardData ? 0 : dashboardData.tb.femalePercentage,
       change: '+4.2%',
       icon: Heart,
       color: '#ef4444'
     },
     {
       title: 'STI',
-      value: loadingHtsTstData ? '...' : htsTstData.sti.toLocaleString(),
+      value: loadingDashboardData ? '...' : dashboardData.sti.totalValue.toLocaleString(),
+      maleCount: loadingDashboardData ? 0 : dashboardData.sti.maleCount,
+      femaleCount: loadingDashboardData ? 0 : dashboardData.sti.femaleCount,
+      malePercentage: loadingDashboardData ? 0 : dashboardData.sti.malePercentage,
+      femalePercentage: loadingDashboardData ? 0 : dashboardData.sti.femalePercentage,
       change: '+6.1%',
       icon: TrendingUp,
       color: '#f59e0b'
@@ -184,6 +212,18 @@ export default function Dashboard() {
                             <Text style={styles.statValue}>{stat.value}</Text>
                             <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
                           </View>
+                          {!loadingDashboardData && (
+                            <View style={styles.genderBreakdown}>
+                              <View style={styles.genderRow}>
+                                <Text style={styles.genderLabel}>Male:</Text>
+                                <Text style={styles.genderValue}>{stat.maleCount.toLocaleString()} ({stat.malePercentage}%)</Text>
+                              </View>
+                              <View style={styles.genderRow}>
+                                <Text style={styles.genderLabel}>Female:</Text>
+                                <Text style={styles.genderValue}>{stat.femaleCount.toLocaleString()} ({stat.femalePercentage}%)</Text>
+                              </View>
+                            </View>
+                          )}
                         </View>
                     );
                   })}
@@ -359,6 +399,28 @@ const styles = StyleSheet.create({
   statChange: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
+  },
+  genderBreakdown: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+  },
+  genderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  genderLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+  },
+  genderValue: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#111827',
   },
   section: {
     padding: 20,
