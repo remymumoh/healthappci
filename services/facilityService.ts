@@ -523,7 +523,7 @@ export const fetchMultipleFacilitiesSummary = async (
 };
 
 // Fetch HTS dashboard summary data across all facilities
-export const fetchHTSUptakeData = async (
+export const fetchCareAndTreatmentData = async (
   startDate: string,
   endDate: string,
   facilityMflCodes: string[],
