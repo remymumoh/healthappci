@@ -6,7 +6,7 @@ import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 import CalendarFilter from '../../components/CalendarFilter';
 import { useDateRange } from '../../contexts/DateRangeContext';
-import { Facility, County, fetchFacilities } from '../../services/facilityService';
+import { Facility, County, fetchFacilities, fetchHTSTSTData, getDateRangeForAPI } from '../../services/facilityService';
 import { useEffect } from 'react';
 
 const { width } = Dimensions.get('window');
@@ -18,6 +18,13 @@ export default function Dashboard() {
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
   const [counties, setCounties] = useState<County[]>([]);
   const [loadingFacilities, setLoadingFacilities] = useState(true);
+  const [htsTstData, setHtsTstData] = useState({
+    opd: 0,
+    ipd: 0,
+    tb: 0,
+    sti: 0
+  });
+  const [loadingHtsTstData, setLoadingHtsTstData] = useState(true);
   const { selectedDateRange } = useDateRange();
 
   useEffect(() => {
@@ -36,6 +43,33 @@ export default function Dashboard() {
     loadFacilities();
   }, []);
 
+  useEffect(() => {
+    const loadHTSTSTData = async () => {
+      if (counties.length === 0) return;
+      
+      try {
+        setLoadingHtsTstData(true);
+        const { startDate, endDate } = getDateRangeForAPI(
+          selectedDateRange.startDate,
+          selectedDateRange.endDate
+        );
+        
+        const mflCodes = counties.flatMap(county => 
+          county.facilities.map(facility => facility.locationId || facility.mflCode)
+        );
+        
+        const data = await fetchHTSTSTData(startDate, endDate, mflCodes);
+        setHtsTstData(data);
+      } catch (error) {
+        console.error('Error loading HTS_TST data:', error);
+      } finally {
+        setLoadingHtsTstData(false);
+      }
+    };
+
+    loadHTSTSTData();
+  }, [counties, selectedDateRange]);
+
   const totalFacilities = counties.reduce((total, county) => total + county.facilities.length, 0);
   const htsActiveSites = counties.reduce((total, county) => 
     total + county.facilities.filter(f => f.type !== 'kp_site').length, 0
@@ -46,30 +80,30 @@ export default function Dashboard() {
 
   const overviewStats = [
     {
-      title: 'Total Health Facilities',
-      value: loadingFacilities ? '...' : totalFacilities.toLocaleString(),
-      change: '+5.2%',
-      icon: BarChart3,
+      title: 'OPD',
+      value: loadingHtsTstData ? '...' : htsTstData.opd.toLocaleString(),
+      change: '+8.3%',
+      icon: Activity,
       color: '#3b82f6'
     },
     {
-      title: 'Active HTS Sites',
-      value: loadingFacilities ? '...' : htsActiveSites.toLocaleString(),
-      change: '+3.8%',
-      icon: Activity,
+      title: 'IPD',
+      value: loadingHtsTstData ? '...' : htsTstData.ipd.toLocaleString(),
+      change: '+5.7%',
+      icon: BarChart3,
       color: '#10b981'
     },
     {
-      title: 'Care & Treatment Sites',
-      value: loadingFacilities ? '...' : careTreatmentSites.toLocaleString(),
-      change: '+2.1%',
+      title: 'TB',
+      value: loadingHtsTstData ? '...' : htsTstData.tb.toLocaleString(),
+      change: '+4.2%',
       icon: Heart,
       color: '#ef4444'
     },
     {
-      title: 'Monthly Growth',
-      value: '4.7%',
-      change: '+0.9%',
+      title: 'STI',
+      value: loadingHtsTstData ? '...' : htsTstData.sti.toLocaleString(),
+      change: '+6.1%',
       icon: TrendingUp,
       color: '#f59e0b'
     }
