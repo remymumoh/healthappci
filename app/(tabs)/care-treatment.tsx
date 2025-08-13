@@ -47,9 +47,9 @@ export default function CareAndTreatmentScreen() {
 
   const careEnrollmentCards = [
     {
-      title: 'Newly Enrolled',
+      title: 'Newly enrolled',
       value: '234',
-      subtitle: 'This month',
+      subtitle: 'New enrollments',
       icon: UserPlus,
       color: '#10b981',
       bgColor: '#dcfce7'
@@ -57,15 +57,15 @@ export default function CareAndTreatmentScreen() {
     {
       title: 'Tx_Curr',
       value: '8,945',
-      subtitle: 'Currently on treatment',
+      subtitle: 'Current on treatment',
       icon: Pill,
       color: '#3b82f6',
       bgColor: '#dbeafe'
     },
     {
-      title: 'Total Patients',
+      title: 'Total patient',
       value: '12,847',
-      subtitle: 'Ever enrolled',
+      subtitle: 'Total enrolled',
       icon: Users,
       color: '#8b5cf6',
       bgColor: '#ede9fe'
@@ -76,15 +76,15 @@ export default function CareAndTreatmentScreen() {
     {
       title: 'VL Eligibility',
       value: '7,234',
-      subtitle: 'Eligible for VL test',
+      subtitle: 'Eligible for VL',
       icon: FileText,
       color: '#f59e0b',
       bgColor: '#fef3c7'
     },
     {
-      title: 'Valid Viral Load',
+      title: 'Valid Viral load',
       value: '6,892',
-      subtitle: 'Valid VL results',
+      subtitle: 'Valid results',
       icon: Activity,
       color: '#06b6d4',
       bgColor: '#cffafe'
@@ -92,7 +92,7 @@ export default function CareAndTreatmentScreen() {
     {
       title: 'VL Suppression',
       value: '92.4%',
-      subtitle: 'Suppressed patients',
+      subtitle: 'Suppressed',
       icon: Shield,
       color: '#10b981',
       bgColor: '#dcfce7'
@@ -117,9 +117,9 @@ export default function CareAndTreatmentScreen() {
       bgColor: '#dcfce7'
     },
     {
-      title: 'LDL Outcome',
+      title: 'LDL outcome',
       value: '5,847',
-      subtitle: 'Below detection limit',
+      subtitle: 'Below detection',
       icon: BarChart3,
       color: '#3b82f6',
       bgColor: '#dbeafe'
@@ -213,60 +213,49 @@ export default function CareAndTreatmentScreen() {
               {careEnrollmentCards.map((card, index) => {
                 const IconComponent = card.icon;
                 return (
-                  <TouchableOpacity key={index} style={[styles.categoryCard, { backgroundColor: card.bgColor }]} activeOpacity={0.8}>
+                  <View key={index} style={[styles.categoryCard, { backgroundColor: card.color }]}>
                     <View style={styles.cardHeader}>
-                      <View style={[styles.cardIconContainer, { backgroundColor: card.color }]}>
-                        <IconComponent size={20} color="#ffffff" />
-                      </View>
-                      <Text style={[styles.cardTitle, { color: card.color }]}>{card.title}</Text>
+                      <Text style={styles.cardTitle}>{card.title}</Text>
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
-                  </TouchableOpacity>
+                  </View>
                 );
               })}
             </View>
           </View>
 
-          {/* Treatment Outcomes Section */}
+          {/* Second Row */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Treatment Outcomes</Text>
             <View style={styles.cardGrid}>
               {treatmentOutcomeCards.map((card, index) => {
                 const IconComponent = card.icon;
                 return (
-                  <TouchableOpacity key={index} style={[styles.categoryCard, { backgroundColor: card.bgColor }]} activeOpacity={0.8}>
+                  <View key={index} style={[styles.categoryCard, { backgroundColor: card.color }]}>
                     <View style={styles.cardHeader}>
-                      <View style={[styles.cardIconContainer, { backgroundColor: card.color }]}>
-                        <IconComponent size={20} color="#ffffff" />
-                      </View>
-                      <Text style={[styles.cardTitle, { color: card.color }]}>{card.title}</Text>
+                      <Text style={styles.cardTitle}>{card.title}</Text>
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
-                  </TouchableOpacity>
+                  </View>
                 );
               })}
             </View>
           </View>
 
-          {/* Clinical Outcomes Section */}
+          {/* Third Row */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Clinical Outcomes</Text>
             <View style={styles.cardGrid}>
               {clinicalOutcomeCards.map((card, index) => {
                 const IconComponent = card.icon;
                 return (
-                  <TouchableOpacity key={index} style={[styles.categoryCard, { backgroundColor: card.bgColor }]} activeOpacity={0.8}>
+                  <View key={index} style={[styles.categoryCard, { backgroundColor: card.color }]}>
                     <View style={styles.cardHeader}>
-                      <View style={[styles.cardIconContainer, { backgroundColor: card.color }]}>
-                        <IconComponent size={20} color="#ffffff" />
-                      </View>
-                      <Text style={[styles.cardTitle, { color: card.color }]}>{card.title}</Text>
+                      <Text style={styles.cardTitle}>{card.title}</Text>
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
-                  </TouchableOpacity>
+                  </View>
                 );
               })}
             </View>
@@ -429,12 +418,10 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   categoryCard: {
-    width: '48%',
+    width: '31%',
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.08)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -442,33 +429,26 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 12,
   },
-  cardIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
   cardTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    flex: 1,
+    color: '#ffffff',
+    textAlign: 'center',
   },
   cardValue: {
-    fontSize: 24,
+    fontSize: 28,
     fontFamily: 'Inter-Bold',
-    color: '#111827',
+    color: '#ffffff',
     marginBottom: 4,
+    textAlign: 'center',
   },
   cardSubtitle: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6b7280',
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
   },
   performanceGrid: {
     marginTop: 12,
