@@ -6,7 +6,8 @@ import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 import CalendarFilter from '../../components/CalendarFilter';
 import { useDateRange } from '../../contexts/DateRangeContext';
-import { Facility, County } from '../../services/facilityService';
+import { Facility, County, fetchFacilities } from '../../services/facilityService';
+import { useEffect } from 'react';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 768;
@@ -15,26 +16,52 @@ export default function Dashboard() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
+  const [counties, setCounties] = useState<County[]>([]);
+  const [loadingFacilities, setLoadingFacilities] = useState(true);
   const { selectedDateRange } = useDateRange();
+
+  useEffect(() => {
+    const loadFacilities = async () => {
+      try {
+        setLoadingFacilities(true);
+        const facilitiesData = await fetchFacilities();
+        setCounties(facilitiesData);
+      } catch (error) {
+        console.error('Error loading facilities:', error);
+      } finally {
+        setLoadingFacilities(false);
+      }
+    };
+
+    loadFacilities();
+  }, []);
+
+  const totalFacilities = counties.reduce((total, county) => total + county.facilities.length, 0);
+  const htsActiveSites = counties.reduce((total, county) => 
+    total + county.facilities.filter(f => f.type !== 'kp_site').length, 0
+  );
+  const careTreatmentSites = counties.reduce((total, county) => 
+    total + county.facilities.filter(f => f.type === 'hospital' || f.type === 'clinic').length, 0
+  );
 
   const overviewStats = [
     {
       title: 'Total Health Facilities',
-      value: '12,847',
+      value: loadingFacilities ? '...' : totalFacilities.toLocaleString(),
       change: '+5.2%',
       icon: BarChart3,
       color: '#3b82f6'
     },
     {
       title: 'Active HTS Sites',
-      value: '8,945',
+      value: loadingFacilities ? '...' : htsActiveSites.toLocaleString(),
       change: '+3.8%',
       icon: Activity,
       color: '#10b981'
     },
     {
       title: 'Care & Treatment Sites',
-      value: '6,234',
+      value: loadingFacilities ? '...' : careTreatmentSites.toLocaleString(),
       change: '+2.1%',
       icon: Heart,
       color: '#ef4444'
