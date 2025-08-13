@@ -6,18 +6,72 @@ import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 import CalendarFilter from '../../components/CalendarFilter';
 import { useDateRange } from '../../contexts/DateRangeContext';
-import { Facility, County } from '../../services/facilityService';
+import { Facility, County, fetchFacilities, fetchCareAndTreatmentData, getDateRangeForAPI } from '../../services/facilityService';
+import { useEffect } from 'react';
 
 export default function CareAndTreatmentScreen() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
+  const [counties, setCounties] = useState<County[]>([]);
+  const [careData, setCareData] = useState({
+    newlyEnrolled: 0,
+    txCurr: 0,
+    totalPatient: 0,
+    vlEligibility: 0,
+    validViralLoad: 0,
+    vlSuppression: 0,
+    hvl: 0,
+    lvl: 0,
+    ldlOutcome: 0
+  });
+  const [loadingCareData, setLoadingCareData] = useState(true);
   const { selectedDateRange } = useDateRange();
+
+  useEffect(() => {
+    const loadFacilities = async () => {
+      try {
+        const facilitiesData = await fetchFacilities();
+        setCounties(facilitiesData);
+      } catch (error) {
+        console.error('Error loading facilities:', error);
+      }
+    };
+
+    loadFacilities();
+  }, []);
+
+  useEffect(() => {
+    const loadCareData = async () => {
+      if (counties.length === 0) return;
+      
+      try {
+        setLoadingCareData(true);
+        const { startDate, endDate } = getDateRangeForAPI(
+          selectedDateRange.startDate,
+          selectedDateRange.endDate
+        );
+        
+        const mflCodes = counties.flatMap(county => 
+          county.facilities.map(facility => facility.locationId || facility.mflCode)
+        );
+        
+        const data = await fetchCareAndTreatmentData(startDate, endDate, mflCodes);
+        setCareData(data);
+      } catch (error) {
+        console.error('Error loading Care & Treatment data:', error);
+      } finally {
+        setLoadingCareData(false);
+      }
+    };
+
+    loadCareData();
+  }, [counties, selectedDateRange]);
 
   const careEnrollmentCards = [
     {
       title: 'Newly enrolled',
-      value: '234',
+      value: loadingCareData ? '...' : careData.newlyEnrolled.toLocaleString(),
       subtitle: 'New enrollments',
       icon: UserPlus,
       color: '#10b981',
@@ -25,7 +79,7 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'Tx_Curr',
-      value: '8,945',
+      value: loadingCareData ? '...' : careData.txCurr.toLocaleString(),
       subtitle: 'Current on treatment',
       icon: Pill,
       color: '#3b82f6',
@@ -33,7 +87,7 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'Total patient',
-      value: '12,847',
+      value: loadingCareData ? '...' : careData.totalPatient.toLocaleString(),
       subtitle: 'Total enrolled',
       icon: Users,
       color: '#8b5cf6',
@@ -44,7 +98,7 @@ export default function CareAndTreatmentScreen() {
   const treatmentOutcomeCards = [
     {
       title: 'VL Eligibility',
-      value: '7,234',
+      value: loadingCareData ? '...' : careData.vlEligibility.toLocaleString(),
       subtitle: 'Eligible for VL',
       icon: FileText,
       color: '#f59e0b',
@@ -52,7 +106,7 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'Valid Viral load',
-      value: '6,892',
+      value: loadingCareData ? '...' : careData.validViralLoad.toLocaleString(),
       subtitle: 'Valid results',
       icon: Activity,
       color: '#06b6d4',
@@ -60,7 +114,7 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'VL Suppression',
-      value: '92.4%',
+      value: loadingCareData ? '...' : careData.vlSuppression.toLocaleString(),
       subtitle: 'Suppressed',
       icon: Shield,
       color: '#10b981',
@@ -71,7 +125,7 @@ export default function CareAndTreatmentScreen() {
   const clinicalOutcomeCards = [
     {
       title: 'HVL',
-      value: '523',
+      value: loadingCareData ? '...' : careData.hvl.toLocaleString(),
       subtitle: 'High viral load',
       icon: TrendingUp,
       color: '#ef4444',
@@ -79,7 +133,7 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'LVL',
-      value: '6,369',
+      value: loadingCareData ? '...' : careData.lvl.toLocaleString(),
       subtitle: 'Low viral load',
       icon: CheckCircle,
       color: '#10b981',
@@ -87,7 +141,7 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'LDL outcome',
-      value: '5,847',
+      value: loadingCareData ? '...' : careData.ldlOutcome.toLocaleString(),
       subtitle: 'Below detection',
       icon: BarChart3,
       color: '#3b82f6',
