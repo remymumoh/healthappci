@@ -277,7 +277,7 @@ const transformApiFacility = (apiFacility: ApiFacility): Facility => {
     subcounty: apiFacility.subcounty,
     ward: apiFacility.ward,
     program: apiFacility.program,
-    locationId: apiFacility.mflcode, // Use MFL code as location ID
+    locationId: apiFacility.mflcode,
     ...mockData
   };
 };

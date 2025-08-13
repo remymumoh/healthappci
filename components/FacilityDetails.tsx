@@ -26,7 +26,7 @@ export default function FacilityDetails({ facility, county }: FacilityDetailsPro
         );
         
         const data = await fetchFacilitySummary(
-          facility.mflCode,
+          facility.locationId || facility.mflCode,
           'HTS_UPTAKE',
           'NEW_TESTING',
           startDate,
