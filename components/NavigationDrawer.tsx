@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated } from 'react-native';
+import { TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronDown, ChevronRight, MapPin, Building2, X, Menu, Activity, Heart, Users } from 'lucide-react-native';
+import { ChevronDown, ChevronRight, MapPin, Building2, X, Menu, Activity, Heart, Users, Search } from 'lucide-react-native';
 import { fetchFacilities, Facility, County } from '../services/facilityService';
 
 const { width } = Dimensions.get('window');
@@ -22,6 +23,8 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
   const [counties, setCounties] = useState<County[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredCounties, setFilteredCounties] = useState<County[]>([]);
 
   useEffect(() => {
     const loadFacilities = async () => {
@@ -40,6 +43,51 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
 
     loadFacilities();
   }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredCounties(counties);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    const filtered = counties.map(county => {
+      // Check if county name matches
+      const countyMatches = county.name.toLowerCase().includes(query);
+      
+      // Filter facilities that match the search
+      const matchingFacilities = county.facilities.filter(facility => 
+        facility.name.toLowerCase().includes(query) ||
+        facility.program.toLowerCase().includes(query) ||
+        facility.subcounty.toLowerCase().includes(query) ||
+        facility.ward.toLowerCase().includes(query) ||
+        getFacilityTypeLabel(facility.type).toLowerCase().includes(query)
+      );
+
+      // If county matches or has matching facilities, include it
+      if (countyMatches || matchingFacilities.length > 0) {
+        return {
+          ...county,
+          facilities: countyMatches ? county.facilities : matchingFacilities
+        };
+      }
+      
+      return null;
+    }).filter(Boolean) as County[];
+
+    setFilteredCounties(filtered);
+    
+    // Auto-expand counties that have search results
+    if (query && filtered.length > 0) {
+      const newExpanded = new Set<string>();
+      filtered.forEach(county => {
+        if (county.facilities.length > 0) {
+          newExpanded.add(county.id);
+        }
+      });
+      setExpandedCounties(newExpanded);
+    }
+  }, [searchQuery, counties]);
 
   useEffect(() => {
     if (isOpen) {
@@ -201,6 +249,39 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
             </View>
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+              {/* Search Bar */}
+              <View style={styles.searchContainer}>
+                <View style={styles.searchInputContainer}>
+                  <Search size={20} color="#9ca3af" style={styles.searchIcon} />
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search facilities, counties, or programs..."
+                    placeholderTextColor="#9ca3af"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  {searchQuery.length > 0 && (
+                    <TouchableOpacity
+                      onPress={() => setSearchQuery('')}
+                      style={styles.clearButton}
+                    >
+                      <X size={16} color="#9ca3af" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+
+              {/* Search Results Info */}
+              {searchQuery.trim() && (
+                <View style={styles.searchResultsInfo}>
+                  <Text style={styles.searchResultsText}>
+                    {filteredCounties.reduce((total, county) => total + county.facilities.length, 0)} facilities found
+                  </Text>
+                </View>
+              )}
+
               {loading && (
                   <View style={styles.loadingContainer}>
                     <Text style={styles.loadingText}>Loading facilities...</Text>
@@ -233,7 +314,7 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
                   </View>
               )}
 
-              {!loading && !error && counties.map((county) => (
+              {!loading && !error && filteredCounties.map((county) => (
                   <View key={county.id} style={styles.countyContainer}>
                     <TouchableOpacity
                         style={styles.countyHeader}
@@ -398,6 +479,42 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#111827',
+    paddingVertical: 0,
+  },
+  clearButton: {
+    padding: 4,
+    marginLeft: 8,
+  },
+  searchResultsInfo: {
+    paddingHorizontal: 4,
+    marginBottom: 12,
+  },
+  searchResultsText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
   },
   countyContainer: {
     marginBottom: 8,
