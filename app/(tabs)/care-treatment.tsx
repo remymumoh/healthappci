@@ -14,37 +14,6 @@ export default function CareAndTreatmentScreen() {
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
   const { selectedDateRange } = useDateRange();
 
-  const overviewStats = [
-    {
-      title: 'Active Patients',
-      value: '8,945',
-      change: '+2.8%',
-      icon: Users,
-      color: '#3b82f6'
-    },
-    {
-      title: 'New Enrollments',
-      value: '234',
-      change: '+4.2%',
-      icon: Heart,
-      color: '#10b981'
-    },
-    {
-      title: 'Viral Suppression',
-      value: '92.4%',
-      change: '+0.8%',
-      icon: Shield,
-      color: '#ef4444'
-    },
-    {
-      title: 'Retention Rate',
-      value: '87.6%',
-      change: '+1.5%',
-      icon: Clock,
-      color: '#f59e0b'
-    }
-  ];
-
   const careEnrollmentCards = [
     {
       title: 'Newly enrolled',
