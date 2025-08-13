@@ -671,7 +671,7 @@ export const fetchCareAndTreatmentData = async (
 };
 
 // Fetch Care & Treatment dashboard data
-export const fetchCareAndTreatmentData = async (
+export const fetchCareTreatmentDashboardMetrics = async (
   startDate: string,
   endDate: string,
   facilityMflCodes: string[]
