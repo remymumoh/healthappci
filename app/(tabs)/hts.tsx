@@ -37,7 +37,19 @@ export default function HTSScreen() {
 
   useEffect(() => {
     const loadHTSData = async () => {
-      if (counties.length === 0) return;
+      // If a facility is selected, use its locationId, otherwise use all facilities
+      let mflCodes: string[];
+      
+      if (selectedFacility) {
+        // Single facility - use its locationId
+        mflCodes = [selectedFacility.locationId || selectedFacility.mflCode];
+      } else {
+        // All facilities
+        if (counties.length === 0) return;
+        mflCodes = counties.flatMap(county => 
+          county.facilities.map(facility => facility.locationId || facility.mflCode)
+        );
+      }
       
       try {
         setLoadingHtsData(true);
@@ -46,12 +58,7 @@ export default function HTSScreen() {
           selectedDateRange.endDate
         );
         
-        // Get all facility MFL codes
-        const allMflCodes = counties.flatMap(county => 
-          county.facilities.map(facility => facility.mflCode)
-        );
-        
-        const data = await fetchHTSDashboardData(startDate, endDate, allMflCodes);
+        const data = await fetchHTSDashboardData(startDate, endDate, mflCodes);
         setHtsData(data);
       } catch (error) {
         console.error('Error loading HTS data:', error);
@@ -61,7 +68,7 @@ export default function HTSScreen() {
     };
 
     loadHTSData();
-  }, [counties, selectedDateRange]);
+  }, [counties, selectedDateRange, selectedFacility]);
 
   const htsStats = [
     {
@@ -153,8 +160,15 @@ export default function HTSScreen() {
             <Menu size={24} color="#374151" />
           </TouchableOpacity>
           <View style={styles.headerContent}>
-            <Text style={styles.title}>HIV Testing Services</Text>
-            <Text style={styles.subtitle}>Testing data and program performance</Text>
+            <Text style={styles.title}>
+              {selectedFacility ? selectedFacility.name : 'HIV Testing Services'}
+            </Text>
+            <Text style={styles.subtitle}>
+              {selectedFacility 
+                ? `${selectedCounty?.name} • ${selectedFacility.program}` 
+                : 'Testing data and program performance'
+              }
+            </Text>
           </View>
         </View>
 
