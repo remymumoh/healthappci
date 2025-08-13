@@ -6,7 +6,7 @@ import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 import CalendarFilter from '../../components/CalendarFilter';
 import { useDateRange } from '../../contexts/DateRangeContext';
-import { Facility, County, fetchFacilities, fetchHTSTSTData, getDateRangeForAPI } from '../../services/facilityService';
+import { Facility, County, fetchFacilities, fetchCareAndTreatmentData, getDateRangeForAPI } from '../../services/facilityService';
 import { useEffect } from 'react';
 
 const { width } = Dimensions.get('window');

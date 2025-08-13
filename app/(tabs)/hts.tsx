@@ -6,7 +6,7 @@ import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 import CalendarFilter from '../../components/CalendarFilter';
 import { useDateRange } from '../../contexts/DateRangeContext';
-import { Facility, County, fetchFacilities, fetchHTSDashboardData, getDateRangeForAPI } from '../../services/facilityService';
+import { Facility, County, fetchFacilities, fetchCareAndTreatmentData, getDateRangeForAPI } from '../../services/facilityService';
 import { useEffect } from 'react';
 
 export default function HTSScreen() {
@@ -60,9 +60,9 @@ export default function HTSScreen() {
         
         // Fetch all three HTS metrics in parallel
         const [newTestingData, repeatTestingData, totalPositiveData] = await Promise.all([
-          fetchHTSUptakeData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'NEW_TESTING'),
-          fetchHTSUptakeData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'REPEAT_TESTING'),
-          fetchHTSUptakeData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'TOTAL_POSITIVE')
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'NEW_TESTING'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'REPEAT_TESTING'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'HTS_UPTAKE', 'TOTAL_POSITIVE')
         ]);
         
         setHtsData({
