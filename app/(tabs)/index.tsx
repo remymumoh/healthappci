@@ -226,7 +226,6 @@ export default function Dashboard() {
                                 <Text style={styles.genderValue}>{stat.femaleCount.toLocaleString()} ({stat.femalePercentage}%)</Text>
                               </View>
                             </>
-                              </View>
                             </View>
                           )}
                         </View>
