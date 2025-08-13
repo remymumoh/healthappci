@@ -220,8 +220,8 @@ export default function HTSScreen() {
                   </View>
                   {!loadingHtsData && (
                     <View style={styles.genderBreakdown}>
-                      <View style={styles.genderRow}>
-                        <Text style={styles.genderLabel}>Male:</Text>
+                      <Text style={styles.genderText}>{stat.maleCount.toLocaleString()} M</Text>
+                      <Text style={styles.genderText}>{stat.femaleCount.toLocaleString()} F</Text>
                         <Text style={styles.genderValue}>{stat.maleCount.toLocaleString()} ({stat.malePercentage}%)</Text>
                       </View>
                       <View style={styles.genderRow}>
