@@ -248,40 +248,40 @@ export default function NavigationDrawer({ isOpen, onToggle, onFacilitySelect, s
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-              {/* Search Bar */}
-              <View style={styles.searchContainer}>
-                <View style={styles.searchInputContainer}>
-                  <Search size={20} color="#9ca3af" style={styles.searchIcon} />
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search facilities, counties, or programs..."
-                    placeholderTextColor="#9ca3af"
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                  {searchQuery.length > 0 && (
-                    <TouchableOpacity
-                      onPress={() => setSearchQuery('')}
-                      style={styles.clearButton}
-                    >
-                      <X size={16} color="#9ca3af" />
-                    </TouchableOpacity>
-                  )}
-                </View>
+            {/* Static Search Bar */}
+            <View style={styles.searchContainer}>
+              <View style={styles.searchInputContainer}>
+                <Search size={20} color="#9ca3af" style={styles.searchIcon} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search facilities, counties, or programs..."
+                  placeholderTextColor="#9ca3af"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => setSearchQuery('')}
+                    style={styles.clearButton}
+                  >
+                    <X size={16} color="#9ca3af" />
+                  </TouchableOpacity>
+                )}
               </View>
+            </View>
 
-              {/* Search Results Info */}
-              {searchQuery.trim() && (
-                <View style={styles.searchResultsInfo}>
-                  <Text style={styles.searchResultsText}>
-                    {filteredCounties.reduce((total, county) => total + county.facilities.length, 0)} facilities found
-                  </Text>
-                </View>
-              )}
+            {/* Search Results Info */}
+            {searchQuery.trim() && (
+              <View style={styles.searchResultsInfo}>
+                <Text style={styles.searchResultsText}>
+                  {filteredCounties.reduce((total, county) => total + county.facilities.length, 0)} facilities found
+                </Text>
+              </View>
+            )}
 
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
               {loading && (
                   <View style={styles.loadingContainer}>
                     <Text style={styles.loadingText}>Loading facilities...</Text>
@@ -478,10 +478,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
   },
   searchContainer: {
-    marginBottom: 16,
+    padding: 16,
+    paddingBottom: 8,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
   },
   searchInputContainer: {
     flexDirection: 'row',
@@ -508,8 +511,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   searchResultsInfo: {
-    paddingHorizontal: 4,
-    marginBottom: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    backgroundColor: '#f9fafb',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   searchResultsText: {
     fontSize: 14,
@@ -518,6 +524,7 @@ const styles = StyleSheet.create({
   },
   countyContainer: {
     marginBottom: 8,
+    marginHorizontal: 16,
   },
   countyHeader: {
     flexDirection: 'row',
