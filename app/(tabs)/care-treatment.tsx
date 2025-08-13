@@ -291,14 +291,8 @@ export default function CareAndTreatmentScreen() {
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
                     {!loadingCareData && (
                       <View style={styles.genderBreakdown}>
-                        <View style={styles.genderRow}>
-                          <Text style={styles.genderLabel}>♂ {card.maleCount.toLocaleString()}</Text>
-                          <Text style={styles.genderPercentage}>({card.malePercentage}%)</Text>
-                        </View>
-                        <View style={styles.genderRow}>
-                          <Text style={styles.genderLabel}>♀ {card.femaleCount.toLocaleString()}</Text>
-                          <Text style={styles.genderPercentage}>({card.femalePercentage}%)</Text>
-                        </View>
+                        <Text style={styles.genderText}>{card.maleCount.toLocaleString()} M</Text>
+                        <Text style={styles.genderText}>{card.femaleCount.toLocaleString()} F</Text>
                       </View>
                     )}
                   </View>
@@ -321,14 +315,8 @@ export default function CareAndTreatmentScreen() {
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
                     {!loadingCareData && (
                       <View style={styles.genderBreakdown}>
-                        <View style={styles.genderRow}>
-                          <Text style={styles.genderLabel}>♂ {card.maleCount.toLocaleString()}</Text>
-                          <Text style={styles.genderPercentage}>({card.malePercentage}%)</Text>
-                        </View>
-                        <View style={styles.genderRow}>
-                          <Text style={styles.genderLabel}>♀ {card.femaleCount.toLocaleString()}</Text>
-                          <Text style={styles.genderPercentage}>({card.femalePercentage}%)</Text>
-                        </View>
+                        <Text style={styles.genderText}>{card.maleCount.toLocaleString()} M</Text>
+                        <Text style={styles.genderText}>{card.femaleCount.toLocaleString()} F</Text>
                       </View>
                     )}
                   </View>
@@ -351,14 +339,8 @@ export default function CareAndTreatmentScreen() {
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
                     {!loadingCareData && (
                       <View style={styles.genderBreakdown}>
-                        <View style={styles.genderRow}>
-                          <Text style={styles.genderLabel}>♂ {card.maleCount.toLocaleString()}</Text>
-                          <Text style={styles.genderPercentage}>({card.malePercentage}%)</Text>
-                        </View>
-                        <View style={styles.genderRow}>
-                          <Text style={styles.genderLabel}>♀ {card.femaleCount.toLocaleString()}</Text>
-                          <Text style={styles.genderPercentage}>({card.femalePercentage}%)</Text>
-                        </View>
+                        <Text style={styles.genderText}>{card.maleCount.toLocaleString()} M</Text>
+                        <Text style={styles.genderText}>{card.femaleCount.toLocaleString()} F</Text>
                       </View>
                     )}
                   </View>
@@ -511,6 +493,12 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginBottom: 8,
   },
+  cardSubtitle: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+    marginBottom: 8,
+  },
   cardChange: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
@@ -569,6 +557,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  genderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  genderLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#6b7280',
+    marginRight: 4,
+  },
+  genderPercentage: {
+    fontSize: 10,
+    fontFamily: 'Inter-Regular',
+    color: '#9ca3af',
   },
   genderText: {
     fontSize: 12,
