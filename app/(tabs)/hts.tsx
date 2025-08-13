@@ -1,37 +1,86 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Activity, Users, Target, TrendingUp, Menu } from 'lucide-react-native';
 import NavigationDrawer from '../../components/NavigationDrawer';
 import FacilityDetails from '../../components/FacilityDetails';
 import CalendarFilter from '../../components/CalendarFilter';
 import { useDateRange } from '../../contexts/DateRangeContext';
-import { Facility, County } from '../../services/facilityService';
+import { Facility, County, fetchFacilities, fetchHTSDashboardData, getDateRangeForAPI } from '../../services/facilityService';
+import { useEffect } from 'react';
 
 export default function HTSScreen() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<County | null>(null);
+  const [counties, setCounties] = useState<County[]>([]);
+  const [htsData, setHtsData] = useState({
+    totalTested: 0,
+    positive: 0,
+    retest: 0
+  });
+  const [loadingHtsData, setLoadingHtsData] = useState(true);
   const { selectedDateRange } = useDateRange();
+
+  useEffect(() => {
+    const loadFacilities = async () => {
+      try {
+        const facilitiesData = await fetchFacilities();
+        setCounties(facilitiesData);
+      } catch (error) {
+        console.error('Error loading facilities:', error);
+      }
+    };
+
+    loadFacilities();
+  }, []);
+
+  useEffect(() => {
+    const loadHTSData = async () => {
+      if (counties.length === 0) return;
+      
+      try {
+        setLoadingHtsData(true);
+        const { startDate, endDate } = getDateRangeForAPI(
+          selectedDateRange.startDate,
+          selectedDateRange.endDate
+        );
+        
+        // Get all facility MFL codes
+        const allMflCodes = counties.flatMap(county => 
+          county.facilities.map(facility => facility.mflCode)
+        );
+        
+        const data = await fetchHTSDashboardData(startDate, endDate, allMflCodes);
+        setHtsData(data);
+      } catch (error) {
+        console.error('Error loading HTS data:', error);
+      } finally {
+        setLoadingHtsData(false);
+      }
+    };
+
+    loadHTSData();
+  }, [counties, selectedDateRange]);
 
   const htsStats = [
     {
       title: 'HTS Total Tested',
-      value: '2,847',
+      value: loadingHtsData ? '...' : htsData.totalTested.toLocaleString(),
       change: '+12.5%',
       icon: Activity,
       color: '#3b82f6'
     },
     {
       title: 'HTS Positive',
-      value: '127',
+      value: loadingHtsData ? '...' : htsData.positive.toLocaleString(),
       change: '+2.1%',
       icon: Target,
       color: '#ef4444'
     },
     {
       title: 'HTS Retest',
-      value: '456',
+      value: loadingHtsData ? '...' : htsData.retest.toLocaleString(),
       change: '+5.7%',
       icon: TrendingUp,
       color: '#f59e0b'
