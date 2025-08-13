@@ -203,17 +203,20 @@ export default function HTSScreen() {
           <View style={styles.statsGrid}>
             {htsStats.map((stat, index) => {
               const IconComponent = stat.icon;
+              const cardStyle = {
+                backgroundColor: stat.color,
+              };
               return (
-                <View key={index} style={styles.statCard}>
+                <View key={index} style={[styles.statCard, cardStyle]}>
                   <View style={styles.statHeader}>
-                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
-                      <IconComponent size={24} color={stat.color} />
+                    <View style={styles.iconContainer}>
+                      <IconComponent size={24} color="#ffffff" />
                     </View>
                     <Text style={styles.statTitle}>{stat.title}</Text>
                   </View>
                   <View style={styles.statContent}>
                     <Text style={styles.statValue}>{stat.value}</Text>
-                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                    <Text style={styles.statChange}>{stat.change}</Text>
                   </View>
                   {!loadingHtsData && (
                     <View style={styles.genderBreakdown}>
@@ -236,17 +239,18 @@ export default function HTSScreen() {
           <View style={styles.additionalStatsGrid}>
             {additionalStats.map((stat, index) => {
               const IconComponent = stat.icon;
+              const cardStyle = index === 0 ? { backgroundColor: '#10b981' } : { backgroundColor: '#8b5cf6' };
               return (
-                <View key={index} style={styles.additionalStatCard}>
+                <View key={index} style={[styles.additionalStatCard, cardStyle]}>
                   <View style={styles.statHeader}>
-                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
-                      <IconComponent size={20} color={stat.color} />
+                    <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
+                      <IconComponent size={20} color="#ffffff" />
                     </View>
                     <Text style={styles.additionalStatTitle}>{stat.title}</Text>
                   </View>
                   <View style={styles.statContent}>
                     <Text style={styles.additionalStatValue}>{stat.value}</Text>
-                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                    <Text style={styles.statChange}>{stat.change}</Text>
                   </View>
                 </View>
               );
@@ -324,72 +328,74 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   statCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
   statHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   statTitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#6b7280',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#ffffff',
     flex: 1,
   },
   statContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    marginBottom: 16,
   },
   statValue: {
-    fontSize: 24,
+    fontSize: 32,
     fontFamily: 'Inter-Bold',
-    color: '#111827',
+    color: '#ffffff',
+    marginBottom: 8,
   },
   statChange: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Inter-Medium',
+    color: 'rgba(255, 255, 255, 0.9)',
   },
   genderBreakdown: {
-    marginTop: 12,
-    paddingTop: 12,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: 'rgba(255, 255, 255, 0.2)',
   },
   genderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   genderLabel: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#6b7280',
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   genderValue: {
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#111827',
+    color: '#ffffff',
   },
   additionalStatsGrid: {
     flexDirection: 'row',
@@ -399,27 +405,25 @@ const styles = StyleSheet.create({
   },
   additionalStatCard: {
     width: '48%',
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+    backgroundColor: '#8b5cf6',
+    borderRadius: 16,
+    padding: 18,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
   additionalStatTitle: {
-    fontSize: 13,
-    fontFamily: 'Inter-Medium',
-    color: '#6b7280',
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
+    color: '#ffffff',
     flex: 1,
   },
   additionalStatValue: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: 'Inter-Bold',
-    color: '#111827',
+    color: '#ffffff',
   },
   section: {
     padding: 20,
