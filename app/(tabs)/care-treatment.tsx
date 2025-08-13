@@ -154,27 +154,6 @@ export default function CareAndTreatmentScreen() {
             <CalendarFilter />
           </View>
 
-          {/* Overview Stats */}
-          <View style={styles.statsGrid}>
-            {overviewStats.map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
-                <View key={index} style={styles.statCard}>
-                  <View style={styles.statHeader}>
-                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
-                      <IconComponent size={24} color={stat.color} />
-                    </View>
-                    <Text style={styles.statTitle}>{stat.title}</Text>
-                  </View>
-                  <View style={styles.statContent}>
-                    <Text style={styles.statValue}>{stat.value}</Text>
-                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-
           {/* Care & Treatment Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Care & Treatment</Text>
