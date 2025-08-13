@@ -56,8 +56,40 @@ export default function CareAndTreatmentScreen() {
           county.facilities.map(facility => facility.locationId || facility.mflCode)
         );
         
-        const data = await fetchCareAndTreatmentData(startDate, endDate, mflCodes);
-        setCareData(data);
+        // Fetch all nine care & treatment metrics in parallel
+        const [
+          newlyEnrolledData,
+          txCurrData,
+          totalPatientData,
+          vlEligibilityData,
+          validViralLoadData,
+          vlSuppressionData,
+          hvlData,
+          lvlData,
+          ldlOutcomeData
+        ] = await Promise.all([
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'CARE_AND_TREATMENT', 'New_IN_CARE'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'CARE_AND_TREATMENT', 'CURRENT_ON_ART'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'VL_REGIMEN_OUTCOME', 'TOTAL_TLD'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'VL_ELIGIBILITY', 'TOTAL_ELIGIBLE'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'VL_UPTAKE', 'TOTAL_UPTAKE'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'VL_SUPPRESSION', 'TOTAL_SUPPRESSION'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'VL_OUTCOME', 'TOTAL_HVL'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'VL_OUTCOME', 'TOTAL_LVL'),
+          fetchCareAndTreatmentData(startDate, endDate, mflCodes, 'VL_OUTCOME', 'TOTAL_LDL')
+        ]);
+        
+        setCareData({
+          newlyEnrolled: newlyEnrolledData,
+          txCurr: txCurrData,
+          totalPatient: totalPatientData,
+          vlEligibility: vlEligibilityData,
+          validViralLoad: validViralLoadData,
+          vlSuppression: vlSuppressionData,
+          hvl: hvlData,
+          lvl: lvlData,
+          ldlOutcome: ldlOutcomeData
+        });
       } catch (error) {
         console.error('Error loading Care & Treatment data:', error);
       } finally {
@@ -71,7 +103,11 @@ export default function CareAndTreatmentScreen() {
   const careEnrollmentCards = [
     {
       title: 'Newly enrolled',
-      value: loadingCareData ? '...' : careData.newlyEnrolled.toLocaleString(),
+      value: loadingCareData ? '...' : careData.newlyEnrolled.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.newlyEnrolled.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.newlyEnrolled.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.newlyEnrolled.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.newlyEnrolled.femalePercentage,
       subtitle: 'New enrollments',
       icon: UserPlus,
       color: '#10b981',
@@ -79,7 +115,11 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'Tx_Curr',
-      value: loadingCareData ? '...' : careData.txCurr.toLocaleString(),
+      value: loadingCareData ? '...' : careData.txCurr.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.txCurr.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.txCurr.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.txCurr.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.txCurr.femalePercentage,
       subtitle: 'Current on treatment',
       icon: Pill,
       color: '#3b82f6',
@@ -87,7 +127,11 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'Total patient',
-      value: loadingCareData ? '...' : careData.totalPatient.toLocaleString(),
+      value: loadingCareData ? '...' : careData.totalPatient.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.totalPatient.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.totalPatient.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.totalPatient.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.totalPatient.femalePercentage,
       subtitle: 'Total enrolled',
       icon: Users,
       color: '#8b5cf6',
@@ -98,7 +142,11 @@ export default function CareAndTreatmentScreen() {
   const treatmentOutcomeCards = [
     {
       title: 'VL Eligibility',
-      value: loadingCareData ? '...' : careData.vlEligibility.toLocaleString(),
+      value: loadingCareData ? '...' : careData.vlEligibility.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.vlEligibility.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.vlEligibility.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.vlEligibility.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.vlEligibility.femalePercentage,
       subtitle: 'Eligible for VL',
       icon: FileText,
       color: '#f59e0b',
@@ -106,7 +154,11 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'Valid Viral load',
-      value: loadingCareData ? '...' : careData.validViralLoad.toLocaleString(),
+      value: loadingCareData ? '...' : careData.validViralLoad.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.validViralLoad.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.validViralLoad.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.validViralLoad.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.validViralLoad.femalePercentage,
       subtitle: 'Valid results',
       icon: Activity,
       color: '#06b6d4',
@@ -114,7 +166,11 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'VL Suppression',
-      value: loadingCareData ? '...' : careData.vlSuppression.toLocaleString(),
+      value: loadingCareData ? '...' : careData.vlSuppression.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.vlSuppression.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.vlSuppression.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.vlSuppression.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.vlSuppression.femalePercentage,
       subtitle: 'Suppressed',
       icon: Shield,
       color: '#10b981',
@@ -125,7 +181,11 @@ export default function CareAndTreatmentScreen() {
   const clinicalOutcomeCards = [
     {
       title: 'HVL',
-      value: loadingCareData ? '...' : careData.hvl.toLocaleString(),
+      value: loadingCareData ? '...' : careData.hvl.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.hvl.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.hvl.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.hvl.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.hvl.femalePercentage,
       subtitle: 'High viral load',
       icon: TrendingUp,
       color: '#ef4444',
@@ -133,7 +193,11 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'LVL',
-      value: loadingCareData ? '...' : careData.lvl.toLocaleString(),
+      value: loadingCareData ? '...' : careData.lvl.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.lvl.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.lvl.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.lvl.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.lvl.femalePercentage,
       subtitle: 'Low viral load',
       icon: CheckCircle,
       color: '#10b981',
@@ -141,7 +205,11 @@ export default function CareAndTreatmentScreen() {
     },
     {
       title: 'LDL outcome',
-      value: loadingCareData ? '...' : careData.ldlOutcome.toLocaleString(),
+      value: loadingCareData ? '...' : careData.ldlOutcome.totalValue.toLocaleString(),
+      maleCount: loadingCareData ? 0 : careData.ldlOutcome.maleCount,
+      femaleCount: loadingCareData ? 0 : careData.ldlOutcome.femaleCount,
+      malePercentage: loadingCareData ? 0 : careData.ldlOutcome.malePercentage,
+      femalePercentage: loadingCareData ? 0 : careData.ldlOutcome.femalePercentage,
       subtitle: 'Below detection',
       icon: BarChart3,
       color: '#3b82f6',
@@ -221,6 +289,18 @@ export default function CareAndTreatmentScreen() {
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
+                    {!loadingCareData && (
+                      <View style={styles.genderBreakdown}>
+                        <View style={styles.genderRow}>
+                          <Text style={styles.genderLabel}>♂ {card.maleCount.toLocaleString()}</Text>
+                          <Text style={styles.genderPercentage}>({card.malePercentage}%)</Text>
+                        </View>
+                        <View style={styles.genderRow}>
+                          <Text style={styles.genderLabel}>♀ {card.femaleCount.toLocaleString()}</Text>
+                          <Text style={styles.genderPercentage}>({card.femalePercentage}%)</Text>
+                        </View>
+                      </View>
+                    )}
                   </View>
                 );
               })}
@@ -239,6 +319,18 @@ export default function CareAndTreatmentScreen() {
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
+                    {!loadingCareData && (
+                      <View style={styles.genderBreakdown}>
+                        <View style={styles.genderRow}>
+                          <Text style={styles.genderLabel}>♂ {card.maleCount.toLocaleString()}</Text>
+                          <Text style={styles.genderPercentage}>({card.malePercentage}%)</Text>
+                        </View>
+                        <View style={styles.genderRow}>
+                          <Text style={styles.genderLabel}>♀ {card.femaleCount.toLocaleString()}</Text>
+                          <Text style={styles.genderPercentage}>({card.femalePercentage}%)</Text>
+                        </View>
+                      </View>
+                    )}
                   </View>
                 );
               })}
@@ -257,6 +349,18 @@ export default function CareAndTreatmentScreen() {
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
                     <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
+                    {!loadingCareData && (
+                      <View style={styles.genderBreakdown}>
+                        <View style={styles.genderRow}>
+                          <Text style={styles.genderLabel}>♂ {card.maleCount.toLocaleString()}</Text>
+                          <Text style={styles.genderPercentage}>({card.malePercentage}%)</Text>
+                        </View>
+                        <View style={styles.genderRow}>
+                          <Text style={styles.genderLabel}>♀ {card.femaleCount.toLocaleString()}</Text>
+                          <Text style={styles.genderPercentage}>({card.femalePercentage}%)</Text>
+                        </View>
+                      </View>
+                    )}
                   </View>
                 );
               })}
@@ -445,5 +549,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Medium',
     color: '#6b7280',
+  },
+  genderBreakdown: {
+    marginTop: 12,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  genderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  genderLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  genderPercentage: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: 'rgba(255, 255, 255, 0.8)',
   },
 });
