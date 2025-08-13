@@ -16,12 +16,29 @@ export default function HTSScreen() {
 
   const htsStats = [
     {
-      title: 'Total Tests This Month',
+      title: 'HTS Total Tested',
       value: '2,847',
       change: '+12.5%',
       icon: Activity,
       color: '#3b82f6'
     },
+    {
+      title: 'HTS Positive',
+      value: '127',
+      change: '+2.1%',
+      icon: Target,
+      color: '#ef4444'
+    },
+    {
+      title: 'HTS Retest',
+      value: '456',
+      change: '+5.7%',
+      icon: TrendingUp,
+      color: '#f59e0b'
+    }
+  ];
+
+  const additionalStats = [
     {
       title: 'People Tested',
       value: '2,234',
@@ -30,18 +47,11 @@ export default function HTSScreen() {
       color: '#10b981'
     },
     {
-      title: 'Positive Results',
-      value: '127',
-      change: '+2.1%',
-      icon: Target,
-      color: '#ef4444'
-    },
-    {
       title: 'Testing Rate',
       value: '89.2%',
-      change: '+5.7%',
-      icon: TrendingUp,
-      color: '#f59e0b'
+      change: '+3.2%',
+      icon: Activity,
+      color: '#8b5cf6'
     }
   ];
 
@@ -118,6 +128,27 @@ export default function HTSScreen() {
                   </View>
                   <View style={styles.statContent}>
                     <Text style={styles.statValue}>{stat.value}</Text>
+                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+
+          {/* Additional Metrics */}
+          <View style={styles.additionalStatsGrid}>
+            {additionalStats.map((stat, index) => {
+              const IconComponent = stat.icon;
+              return (
+                <View key={index} style={styles.additionalStatCard}>
+                  <View style={styles.statHeader}>
+                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                      <IconComponent size={20} color={stat.color} />
+                    </View>
+                    <Text style={styles.additionalStatTitle}>{stat.title}</Text>
+                  </View>
+                  <View style={styles.statContent}>
+                    <Text style={styles.additionalStatValue}>{stat.value}</Text>
                     <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
                   </View>
                 </View>
@@ -240,6 +271,36 @@ const styles = StyleSheet.create({
   statChange: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
+  },
+  additionalStatsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  additionalStatCard: {
+    width: '48%',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  additionalStatTitle: {
+    fontSize: 13,
+    fontFamily: 'Inter-Medium',
+    color: '#6b7280',
+    flex: 1,
+  },
+  additionalStatValue: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#111827',
   },
   section: {
     padding: 20,
