@@ -216,14 +216,16 @@ export default function Dashboard() {
                             <Text style={styles.statChange}>{stat.change}</Text>
                           </View>
                           {!loadingDashboardData && (
-                            <View style={styles.genderBreakdown}>
-                              <Text style={styles.genderText}>{stat.maleCount.toLocaleString()} M</Text>
-                              <Text style={styles.genderText}>{stat.femaleCount.toLocaleString()} F</Text>
+                            <>
+                              <View style={styles.genderRow}>
+                                <Text style={styles.genderLabel}>Male:</Text>
                                 <Text style={styles.genderValue}>{stat.maleCount.toLocaleString()} ({stat.malePercentage}%)</Text>
                               </View>
                               <View style={styles.genderRow}>
                                 <Text style={styles.genderLabel}>Female:</Text>
                                 <Text style={styles.genderValue}>{stat.femaleCount.toLocaleString()} ({stat.femalePercentage}%)</Text>
+                              </View>
+                            </>
                               </View>
                             </View>
                           )}
