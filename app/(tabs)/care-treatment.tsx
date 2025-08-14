@@ -283,8 +283,11 @@ export default function CareAndTreatmentScreen() {
               {careEnrollmentCards.map((card, index) => {
                 const IconComponent = card.icon;
                 return (
-                  <View key={index} style={[styles.categoryCard, { backgroundColor: card.color }]}>
+                  <View key={index} style={styles.categoryCard}>
                     <View style={styles.cardHeader}>
+                      <View style={[styles.iconContainer, { backgroundColor: `${card.color}20` }]}>
+                        <IconComponent size={20} color={card.color} />
+                      </View>
                       <Text style={styles.cardTitle}>{card.title}</Text>
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
@@ -307,8 +310,11 @@ export default function CareAndTreatmentScreen() {
               {treatmentOutcomeCards.map((card, index) => {
                 const IconComponent = card.icon;
                 return (
-                  <View key={index} style={[styles.categoryCard, { backgroundColor: card.color }]}>
+                  <View key={index} style={styles.categoryCard}>
                     <View style={styles.cardHeader}>
+                      <View style={[styles.iconContainer, { backgroundColor: `${card.color}20` }]}>
+                        <IconComponent size={20} color={card.color} />
+                      </View>
                       <Text style={styles.cardTitle}>{card.title}</Text>
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
@@ -331,8 +337,11 @@ export default function CareAndTreatmentScreen() {
               {clinicalOutcomeCards.map((card, index) => {
                 const IconComponent = card.icon;
                 return (
-                  <View key={index} style={[styles.categoryCard, { backgroundColor: card.color }]}>
+                  <View key={index} style={styles.categoryCard}>
                     <View style={styles.cardHeader}>
+                      <View style={[styles.iconContainer, { backgroundColor: `${card.color}20` }]}>
+                        <IconComponent size={20} color={card.color} />
+                      </View>
                       <Text style={styles.cardTitle}>{card.title}</Text>
                     </View>
                     <Text style={styles.cardValue}>{card.value}</Text>
@@ -472,6 +481,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
   },
   iconContainer: {
     width: 32,

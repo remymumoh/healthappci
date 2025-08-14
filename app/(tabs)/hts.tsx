@@ -203,20 +203,17 @@ export default function HTSScreen() {
           <View style={styles.statsGrid}>
             {htsStats.map((stat, index) => {
               const IconComponent = stat.icon;
-              const cardStyle = {
-                backgroundColor: stat.color,
-              };
               return (
-                <View key={index} style={[styles.statCard, cardStyle]}>
+                <View key={index} style={styles.statCard}>
                   <View style={styles.statHeader}>
-                    <View style={styles.iconContainer}>
-                      <IconComponent size={24} color="#ffffff" />
+                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                      <IconComponent size={24} color={stat.color} />
                     </View>
                     <Text style={styles.statTitle}>{stat.title}</Text>
                   </View>
                   <View style={styles.statContent}>
                     <Text style={styles.statValue}>{stat.value}</Text>
-                    <Text style={styles.statChange}>{stat.change}</Text>
+                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
                   </View>
                   {!loadingHtsData && (
                     <View style={styles.genderBreakdown}>
@@ -233,18 +230,17 @@ export default function HTSScreen() {
           <View style={styles.additionalStatsGrid}>
             {additionalStats.map((stat, index) => {
               const IconComponent = stat.icon;
-              const cardStyle = index === 0 ? { backgroundColor: '#10b981' } : { backgroundColor: '#8b5cf6' };
               return (
-                <View key={index} style={[styles.additionalStatCard, cardStyle]}>
+                <View key={index} style={styles.additionalStatCard}>
                   <View style={styles.statHeader}>
-                    <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
-                      <IconComponent size={20} color="#ffffff" />
+                    <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                      <IconComponent size={20} color={stat.color} />
                     </View>
                     <Text style={styles.additionalStatTitle}>{stat.title}</Text>
                   </View>
                   <View style={styles.statContent}>
                     <Text style={styles.additionalStatValue}>{stat.value}</Text>
-                    <Text style={styles.statChange}>{stat.change}</Text>
+                    <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
                   </View>
                 </View>
               );

@@ -206,14 +206,14 @@ export default function Dashboard() {
                     return (
                         <View key={index} style={[styles.statCard, cardStyle]}>
                           <View style={styles.statHeader}>
-                            <View style={[styles.iconContainer, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
-                              <IconComponent size={24} color="#ffffff" />
+                            <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
+                              <IconComponent size={24} color={stat.color} />
                             </View>
                             <Text style={styles.statTitle}>{stat.title}</Text>
                           </View>
                           <View style={styles.statContent}>
                             <Text style={styles.statValue}>{stat.value}</Text>
-                            <Text style={styles.statChange}>{stat.change}</Text>
+                            <Text style={[styles.statChange, { color: '#10b981' }]}>{stat.change}</Text>
                           </View>
                           {!loadingDashboardData && (
                             <View style={styles.genderBreakdown}>
